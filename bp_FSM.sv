@@ -1,114 +1,54 @@
-//4 state Moore FSM for branch prediction
-module bp_FSM(ip_state,b_res,clk,rst,op_state,pred);
-input logic [1:0] ip_state;
-input logic b_res; //Actual result of branch
-input logic clk;
-input logic rst;
-output reg [1:0] op_state; //Output state after verifying actual result
-output reg pred; //predicted operation for branch
+module bp_FSM (
+    input  logic       b_res,        // Actual branch outcome (1 if taken)
+    input  logic       clk,
+    input  logic       rst,
+    output logic [1:0] op_state,     // Encoded FSM state
+    output logic       pred          // Branch prediction (1 if predicted taken)
+);
 
-typedef enum logic {strong_nt, weak_nt, weak_t, strong_t } state_t;
-state_t curr;
-state_t next; 
+    typedef enum logic [1:0] {
+        STRONG_NT = 2'b00,
+        WEAK_NT   = 2'b01,
+        WEAK_T    = 2'b10,
+        STRONG_T  = 2'b11
+    } state_t;
 
+    state_t curr, next;
 
-//State Assigment
-always_ff@(posedge clk or posedge rst)
-begin
-    if(rst)
-    curr <= strong_nt;
-    else
-    next <= curr;
-end
-
-//Output and Next state computation
-//Same always block as we have considered Moore machine
-always@(*)
-begin
-    case(curr)
-    strong_nt: //00
-    begin
-        pred <= 1'b0;
-        if(b_res)
-        next <= weak_nt; //00-->01
+    // State register
+    always_ff @(posedge clk or posedge rst) begin
+        if (rst)
+            curr <= STRONG_NT;
         else
-        next <= strong_nt; //00-->00
+            curr <= next;
     end
-    weak_nt: //01
-    begin
-        pred <= 1'b0;
-        if(b_res)
-        next <= strong_t; //01-->11
-        else
-        next <= strong_nt; //01-->00
-    end
-    weak_t: //10
-    begin
-        pred <= 1'b1;
-        if(b_res)
-        next <= strong_t; //10-->11
-        else
-        next <= strong_nt; //10-->00
-    end
-    strong_t: //11
-    begin
-        pred <= 1'b1;
-        if(b_res)
-        next <= strong_t; //11-->11
-        else
-        next <= weak_t; //11-->10
-    end
-    default:
-    begin
-        pred <= 1'b0;
-        next <= strong_nt;
-    end
-    endcase
-    op_state = next;
-end
-endmodule
 
-//Branch history table
-module btb_input(rst,btb,index,PredictedTarget,curr_state,mux_predict);
+    // Next state logic and prediction (Moore: pred based on current state)
+    always_comb begin
+        case (curr)
+            STRONG_NT: begin
+                pred = 1'b0;
+                next = (b_res) ? WEAK_NT : STRONG_NT;
+            end
+            WEAK_NT: begin
+                pred = 1'b0;
+                next = (b_res) ? STRONG_T : STRONG_NT;
+            end
+            WEAK_T: begin
+                pred = 1'b1;
+                next = (b_res) ? STRONG_T : STRONG_NT;
+            end
+            STRONG_T: begin
+                pred = 1'b1;
+                next = (b_res) ? STRONG_T : WEAK_T;
+            end
+            default: begin
+                pred = 1'b0;
+                next = STRONG_NT;
+            end
+        endcase
 
-input logic rst;
-input logic [34:0]btb[0:31]
-input logic [4:0]index;
-output reg [1:0]curr_state;
-output reg [31:0]PredictedTarget;
-output mux_predict;
-
-reg i;
-initial
-begin
-    for(i = 0; i < 32; i = i+1)
-	btable[i] <= 35'd0;
-end
-always@(index,rst)
-begin
-    if(rst) begin
-        for(i = 0; i < 32; i = i+1)
-		btable[i] <= 35'd0;
+        op_state = curr;
     end
-    else 
-        {PredictedTarget,curr_state,mux_predict} = btable[index]; 
-end
-endmodule
-
-module btb_update(btb,index,TargetAddress,next_state,predict_bit);
-input logic [34:0]btb[0:31];
-input logic [4:0]index;
-input logic [32:0]TargetAddress;
-input logic [1:0] next_state;
-input logic predict_bit;
-
-always@(*)
-begin 
-    btb[index] = {TargetAddress, next_state, predict_bit}; 
-end
 
 endmodule
-
-
-
-
