@@ -2,18 +2,16 @@
 This project implements a 32-bit pipelined RISC processor in SystemVerilog, designed as part of a self-driven learning initiative. The processor supports a 5-stage pipeline — Fetch, Decode, Execute, Memory, and Write Back — with modules for hazard detection, data forwarding, and branch control.
 
 # RV32I Instruction Set Documentation
-
-This repository documents a subset of the RISC-V RV32I instruction set, including binary encoding, format, description, and implementation. Useful for developing simulators, assemblers, or hardware logic for RV32I cores.
-
----
+Conforms to RISC-V Unprivileged ISA Spec v2.2.
 
 ## Supported Instructions
 
 Each instruction includes:
-- Binary encoding (bit field table)
-- Assembly format
-- Description
-- Pseudo-code style implementation
+- Arithmetic - add,sub,addi
+- Logical - and,or,xor,andi,ori,xori
+- Shift - sll,srl,slli,srli,sra
+- Branch and Jump - beq,bne
+- Branch and Jump - beq,bne
 
 ---
 
@@ -36,7 +34,7 @@ Each instruction includes:
 
 | Bits     | 31–25   | 24–20 | 19–15 | 14–12 | 11–7 | 6–0     |
 |----------|---------|--------|--------|--------|------|----------|
-| Value    | 0000000 | rs2    | rs1    | 000    | rd   | 0110011  |
+| Value    | 0100000 | rs2    | rs1    | 000    | rd   | 0110011  |
 
 **Description**: Subtracts `rs2` from `rs1` and stores the result in `rd`.
 
@@ -54,7 +52,7 @@ Each instruction includes:
 **Description**: Adds the 12-bit sign-extended immediate to `rs1` and stores the result in `rd`.
 
 **Implementation**:  
-`x[rd] = x[rs1] + sext(immediate)`
+`x[rd] = x[rs1] + (immediate)`
 
 ---
 
@@ -96,7 +94,7 @@ Each instruction includes:
 **Description**: Bitwise AND of `rs1` with sign-extended immediate.
 
 **Implementation**:  
-`x[rd] = x[rs1] & sext(immediate)`
+`x[rd] = x[rs1] & (immediate)`
 
 ---
 
@@ -109,7 +107,7 @@ Each instruction includes:
 **Description**: Bitwise OR of `rs1` with sign-extended immediate.
 
 **Implementation**:  
-`x[rd] = x[rs1] | sext(immediate)`
+`x[rd] = x[rs1] | (immediate)`
 
 ---
 
@@ -122,7 +120,7 @@ Each instruction includes:
 **Description**: Bitwise XOR of `rs1` with sign-extended immediate.
 
 **Implementation**:  
-`x[rd] = x[rs1] ^ sext(immediate)`
+`x[rd] = x[rs1] ^ (immediate)`
 
 ---
 
@@ -204,7 +202,7 @@ Each instruction includes:
 **Description**: Load 32-bit word from memory and sign-extend.
 
 **Implementation**:  
-`x[rd] = sext(M[x[rs1] + sext(offset)][31:0])`
+`x[rd] = M[x[rs1] + offset]`
 
 ---
 
@@ -217,12 +215,7 @@ Each instruction includes:
 **Description**: Store 32-bit word from `rs2` into memory.
 
 **Implementation**:  
-`M[x[rs1] + sext(offset)] = x[rs2][31:0]`
+`M[x[rs1] + offset] = x[rs2]`
 
----
+--------
 
-## Notes
-
-- All immediate fields are sign-extended unless stated.
-- Overflow is ignored (wrap-around).
-- Conforms to RISC-V Unprivileged ISA Spec v2.2.
