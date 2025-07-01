@@ -251,7 +251,7 @@ Each instruction includes:
 **Description**: Branch if rs1 and rs2 are equal. 
 
 **Implementation**:  
-`if (x[rs1] == x[rs2]) PC = (PC + 4) + 4 × sext(imm)`
+`if (x[rs1] == x[rs2]) PC = (PC + 4) + 4*sext(imm)`
 
 
 ### `bne rs1, rs2, imm`
@@ -264,6 +264,6 @@ Each instruction includes:
 **Description**: Branch if rs1 and rs2 are not equal. 
 
 **Implementation**:  
-`if (x[rs1] != x[rs2]) PC = (PC + 4) + 4 × sext(imm)`
+`if (x[rs1] != x[rs2]) PC = (PC + 4) + 4*sext(imm)`
 
 ----------------
