@@ -1,0 +1,48 @@
+add
+----
+
+.. tabularcolumns:: |c|c|c|c|c|c|c|c|
+.. table::
+
+  +-----+-----+-----+-----+-----+-----+-----+---+
+  |31-27|26-25|24-20|19-15|14-12|11-7 |6-2  |1-0|
+  +-----+-----+-----+-----+-----+-----+-----+---+
+  |00000|00   |rs2  |rs1  |000  |rd   |01100|11 |
+  +-----+-----+-----+-----+-----+-----+-----+---+
+
+
+
+:Format:
+  | add        rd,rs1,rs2
+
+:Description:
+  | Adds the registers rs1 and rs2 and stores the result in rd.
+  | Arithmetic overflow is ignored and the result is simply the low XLEN bits of the result.
+
+:Implementation:
+  | x[rd] = x[rs1] + x[rs2]
+
+sub
+----
+
+.. tabularcolumns:: |c|c|c|c|c|c|c|c|
+.. table::
+
+  +-----+-----+-----+-----+-----+-----+-----+---+
+  |31-27|26-25|24-20|19-15|14-12|11-7 |6-2  |1-0|
+  +-----+-----+-----+-----+-----+-----+-----+---+
+  |01000|00   |rs2  |rs1  |000  |rd   |01100|11 |
+  +-----+-----+-----+-----+-----+-----+-----+---+
+
+
+
+:Format:
+  | sub        rd,rs1,rs2
+
+:Description:
+  | Subs the register rs2 from rs1 and stores the result in rd.
+  | Arithmetic overflow is ignored and the result is simply the low XLEN bits of the result.
+
+:Implementation:
+  | x[rd] = x[rs1] - x[rs2]
+
