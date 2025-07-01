@@ -10,7 +10,7 @@ Each instruction includes:
 - Arithmetic - add,sub,addi
 - Logical - and,or,xor,andi,ori,xori
 - Shift - sll,srl,sra,slli,srli,srai
-- Branch and Jump - beq,bne
+- Branch - beq,bne
 
 ---
 
@@ -51,11 +51,22 @@ Each instruction includes:
 **Description**: Adds the 12-bit sign-extended immediate to `rs1` and stores the result in `rd`.
 
 **Implementation**:  
-`x[rd] = x[rs1] + (immediate)`
+`x[rd] = x[rs1] + sext(immediate)`
 
 ---
 
 ## Logical Instructions
+
+### `and rd, rs1, rs2`
+
+| Bits     | 31–25   | 24–20 | 19–15 | 14–12 | 11–7 | 6–0     |
+|----------|---------|--------|--------|--------|------|----------|
+| Value    | 0000000 | rs2    | rs1    | 111    | rd   | 0110011  |
+
+**Description**: Bitwise AND of `rs1` and `rs2`.
+
+**Implementation**:  
+`x[rd] = x[rs1] & x[rs2]`
 
 ### `or rd, rs1, rs2`
 
@@ -75,7 +86,6 @@ Each instruction includes:
 | Bits     | 31–25   | 24–20 | 19–15 | 14–12 | 11–7 | 6–0     |
 |----------|---------|--------|--------|--------|------|----------|
 | Value    | 0000000 | rs2    | rs1    | 100    | rd   | 0110011  |
-|
 
 **Description**: Bitwise XOR of `rs1` and `rs2`.
 
@@ -93,7 +103,7 @@ Each instruction includes:
 **Description**: Bitwise AND of `rs1` with sign-extended immediate.
 
 **Implementation**:  
-`x[rd] = x[rs1] & (immediate)`
+`x[rd] = x[rs1] & sext(immediate)`
 
 ---
 
@@ -106,7 +116,7 @@ Each instruction includes:
 **Description**: Bitwise OR of `rs1` with sign-extended immediate.
 
 **Implementation**:  
-`x[rd] = x[rs1] | (immediate)`
+`x[rd] = x[rs1] | sext(immediate)`
 
 ---
 
@@ -119,7 +129,7 @@ Each instruction includes:
 **Description**: Bitwise XOR of `rs1` with sign-extended immediate.
 
 **Implementation**:  
-`x[rd] = x[rs1] ^ (immediate)`
+`x[rd] = x[rs1] ^ sext(immediate)`
 
 ---
 
@@ -212,7 +222,7 @@ Each instruction includes:
 **Description**: Load 32-bit word from memory and sign-extend.
 
 **Implementation**:  
-`x[rd] = M[x[rs1] + offset]`
+`x[rd] = M[x[rs1] + sext(offset)]`
 
 ---
 
@@ -225,7 +235,32 @@ Each instruction includes:
 **Description**: Store 32-bit word from `rs2` into memory.
 
 **Implementation**:  
-`M[x[rs1] + offset] = x[rs2]`
+`M[x[rs1] + sext(offset)] = x[rs2]`
 
 --------
 
+## Branch Instructions
+
+## `beq rs1, rs2, imm`
+
+| Bits     | 31–20       | 19–15 | 14–12 | 11–7 | 6–0     |
+|----------|-------------|--------|--------|------|----------|
+| Value    | offset[11:0]| rs1    | 000    | r2   | 1100011  |
+
+**Description**: Branch if rs1 and rs2 are equal. 
+
+**Implementation**:  
+`if (x[rs1] == x[rs2]) PC = PC + 4 + 4 × sext(imm)`
+
+## `bne rs1, rs2, imm`
+
+| Bits     | 31–20       | 19–15 | 14–12 | 11–7 | 6–0     |
+|----------|-------------|--------|--------|------|----------|
+| Value    | offset[11:0]| rs1    | 001    | r2   | 1100011  |
+
+**Description**: Branch if rs1 and rs2 are not equal. 
+
+**Implementation**:  
+`if (x[rs1] != x[rs2]) PC = PC + 4 + 4 × sext(imm)`
+
+----------------
