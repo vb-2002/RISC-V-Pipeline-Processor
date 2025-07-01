@@ -186,7 +186,7 @@ Each instruction includes:
 
 **Description**: Performs arithmetic right shift on the value in register rs1 by the shift amount.
 **Implementation**:  
-`x[rd] = x[rs1] >> shamt ()`
+`x[rd] = x[rs1] >> shamt (signed)`
 
 ---
 
