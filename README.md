@@ -145,7 +145,7 @@ Each instruction includes:
 |----------|---------|--------|--------|--------|------|----------|
 | Value    | 0000000 | rs2    | rs1    | 101    | rd   | 0110011  |
 
-**Description**: Logical right shift.
+**Description**: Logical right shift of `rs1` by lower 5 bits of `rs2`.
 
 **Implementation**:  
 `x[rd] = x[rs1] >> x[rs2] (unsigned)`
@@ -158,7 +158,7 @@ Each instruction includes:
 |----------|---------|--------|--------|--------|------|----------|
 | Value    | 0100000 | rs2    | rs1    | 101    | rd   | 0110011  |
 
-**Description**: Arithmetic right shift of `rs1` by `rs2`.
+**Description**: Arithmetic right shift of `rs1` by lower 5 bits of `rs2`.
 
 **Implementation**:  
 `x[rd] = x[rs1] >> x[rs2] (signed)`
@@ -175,6 +175,17 @@ Each instruction includes:
 
 **Implementation**:  
 `x[rd] = x[rs1] << shamt`
+---
+
+### `srai rd, rs1, shamt`
+
+| Bits     | 31–25   | 24–20 | 19–15 | 14–12 | 11–7 | 6–0     |
+|----------|---------|--------|--------|--------|------|----------|
+| Value    | 0100000 | shamt  | rs1    | 101    | rd   | 0010011  |
+
+**Description**: Performs logical right shift on the value in register rs1 by the shift amount.
+**Implementation**:  
+`x[rd] = x[rs1] >> shamt (unsigned)`
 
 ---
 
