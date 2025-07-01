@@ -148,7 +148,7 @@ Each instruction includes:
 **Description**: Logical right shift.
 
 **Implementation**:  
-`x[rd] = x[rs1] >>u x[rs2]`
+`x[rd] = x[rs1] >> x[rs2] (unsigned)`
 
 ---
 
@@ -161,7 +161,7 @@ Each instruction includes:
 **Description**: Arithmetic right shift of `rs1` by `rs2`.
 
 **Implementation**:  
-`x[rd] = x[rs1] >>s x[rs2]`
+`x[rd] = x[rs1] >> x[rs2] (signed)`
 
 ---
 
@@ -171,7 +171,7 @@ Each instruction includes:
 |----------|---------|--------|--------|--------|------|----------|
 | Value    | 0000000 | shamt  | rs1    | 001    | rd   | 0010011  |
 
-**Description**: Logical left shift by immediate.
+**Description**: Performs logical shift on the value in register rs1 by the shift amount.
 
 **Implementation**:  
 `x[rd] = x[rs1] << shamt`
@@ -180,14 +180,13 @@ Each instruction includes:
 
 ### `srli rd, rs1, shamt`
 
-**Same format as `slli`, with funct3 = `101`**
-
 | Bits     | 31–25   | 24–20 | 19–15 | 14–12 | 11–7 | 6–0     |
 |----------|---------|--------|--------|--------|------|----------|
 | Value    | 0000000 | shamt  | rs1    | 101    | rd   | 0010011  |
 
+**Description**: Performs arithmetic right shift on the value in register rs1 by the shift amount.
 **Implementation**:  
-`x[rd] = x[rs1] >> shamt`
+`x[rd] = x[rs1] >> shamt ()`
 
 ---
 
