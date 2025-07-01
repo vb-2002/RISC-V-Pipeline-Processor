@@ -241,6 +241,7 @@ Each instruction includes:
 
 ## Branch Instructions
 
+
 ## `beq rs1, rs2, imm`
 
 | Bits     | 31–20       | 19–15 | 14–12 | 11–7 | 6–0     |
@@ -252,7 +253,9 @@ Each instruction includes:
 **Implementation**:  
 `if (x[rs1] == x[rs2]) PC = PC + 4 + 4 × sext(imm)`
 
+
 ## `bne rs1, rs2, imm`
+
 
 | Bits     | 31–20       | 19–15 | 14–12 | 11–7 | 6–0     |
 |----------|-------------|--------|--------|------|----------|
