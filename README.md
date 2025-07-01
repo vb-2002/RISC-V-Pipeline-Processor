@@ -174,6 +174,7 @@ Each instruction includes:
 
 **Implementation**:  
 `x[rd] = x[rs1] << shamt`
+
 ---
 
 ### `srai rd, rs1, shamt`
