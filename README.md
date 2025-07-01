@@ -3,147 +3,221 @@ This project implements a 32-bit pipelined RISC processor in SystemVerilog, desi
 
 # RV32I Instruction Set Documentation
 
-This repository documents a subset of the RISC-V RV32I instruction set, including encoding, format, description, and implementation behavior for each instruction. The format follows standard RISC-V conventions and is useful for both learning and implementing RISC-V ISA in tools like simulators, assemblers, or hardware descriptions.
+This repository documents a subset of the RISC-V RV32I instruction set, including binary encoding, format, description, and implementation. Useful for developing simulators, assemblers, or hardware logic for RV32I cores.
 
 ---
 
-## 📜 Supported Instructions
+## Supported Instructions
 
 Each instruction includes:
-- **Binary encoding format**
-- **Assembly syntax**
-- **Description**
-- **Pseudo-code style implementation**
+- Binary encoding (bit field table)
+- Assembly format
+- Description
+- Pseudo-code style implementation
 
 ---
 
-### 🧮 Arithmetic Instructions
+## Arithmetic Instructions
 
-#### `add rd, rs1, rs2`
+### `add rd, rs1, rs2`
 
-| Bits    | Field |
-|---------|-------|
-| 31–27   | 00000 |
-| 26–25   | 00    |
-| 24–20   | rs2   |
-| 19–15   | rs1   |
-| 14–12   | 000   |
-| 11–7    | rd    |
-| 6–2     | 01100 |
-| 1–0     | 11    |
+| Bits     | 31–27 | 26–25 | 24–20 | 19–15 | 14–12 | 11–7 | 6–2   | 1–0 |
+|----------|-------|-------|-------|-------|--------|------|--------|-----|
+| Value    | 00000 | 00    | rs2   | rs1   | 000    | rd   | 01100  | 11  |
 
-Adds values in `rs1` and `rs2`, result stored in `rd`.
+**Description**: Adds the values in `rs1` and `rs2` and stores the result in `rd`.
 
-> `x[rd] = x[rs1] + x[rs2]`
+**Implementation**:  
+`x[rd] = x[rs1] + x[rs2]`
 
 ---
 
-#### `sub rd, rs1, rs2`
+### `sub rd, rs1, rs2`
 
-| Bits    | Field |
-|---------|-------|
-| 31–27   | 01000 |
-| 26–25   | 00    |
-| ...     | ...   |
+| Bits     | 31–27 | 26–25 | 24–20 | 19–15 | 14–12 | 11–7 | 6–2   | 1–0 |
+|----------|-------|-------|-------|-------|--------|------|--------|-----|
+| Value    | 01000 | 00    | rs2   | rs1   | 000    | rd   | 01100  | 11  |
 
-Subtracts `rs2` from `rs1`, result stored in `rd`.
+**Description**: Subtracts `rs2` from `rs1` and stores the result in `rd`.
 
-> `x[rd] = x[rs1] - x[rs2]`
-
----
-
-#### `addi rd, rs1, imm`
-
-Adds 12-bit sign-extended immediate to `rs1`, stores result in `rd`.
-
-> `x[rd] = x[rs1] + sext(imm)`
+**Implementation**:  
+`x[rd] = x[rs1] - x[rs2]`
 
 ---
 
-### 🔢 Logical Instructions
+### `addi rd, rs1, imm`
 
-#### `or rd, rs1, rs2`  
-Performs bitwise OR:  
-> `x[rd] = x[rs1] | x[rs2]`
+| Bits     | 31–20         | 19–15 | 14–12 | 11–7 | 6–2   | 1–0 |
+|----------|---------------|-------|--------|------|--------|-----|
+| Value    | imm[11:0]     | rs1   | 000    | rd   | 00100  | 11  |
 
-#### `xor rd, rs1, rs2`  
-Performs bitwise XOR:  
-> `x[rd] = x[rs1] ^ x[rs2]`
+**Description**: Adds the 12-bit sign-extended immediate to `rs1` and stores the result in `rd`.
 
-#### `andi rd, rs1, imm`  
-Bitwise AND with sign-extended immediate:  
-> `x[rd] = x[rs1] & sext(imm)`
-
-#### `ori rd, rs1, imm`  
-Bitwise OR with sign-extended immediate:  
-> `x[rd] = x[rs1] | sext(imm)`
-
-#### `xori rd, rs1, imm`  
-Bitwise XOR with sign-extended immediate:  
-> `x[rd] = x[rs1] ^ sext(imm)`  
-> `xori rd, rs1, -1` = `not rd, rs1`
+**Implementation**:  
+`x[rd] = x[rs1] + sext(immediate)`
 
 ---
 
-### 🔁 Shift Instructions
+## Logical Instructions
 
-#### `sll rd, rs1, rs2`  
-Shift left logical:  
-> `x[rd] = x[rs1] << x[rs2]`
+### `or rd, rs1, rs2`
 
-#### `srl rd, rs1, rs2`  
-Logical right shift:  
-> `x[rd] = x[rs1] >>u x[rs2]`
+| Bits     | 31–27 | 26–25 | 24–20 | 19–15 | 14–12 | 11–7 | 6–2   | 1–0 |
+|----------|-------|-------|-------|-------|--------|------|--------|-----|
+| Value    | 00000 | 00    | rs2   | rs1   | 110    | rd   | 01100  | 11  |
 
-#### `sra rd, rs1, rs2`  
-Arithmetic right shift:  
-> `x[rd] = x[rs1] >>s x[rs2]`
+**Description**: Bitwise OR of `rs1` and `rs2`.
 
-#### `slli rd, rs1, shamt`  
-Shift left logical immediate:  
-> `x[rd] = x[rs1] << shamt`
-
-#### `srli rd, rs1, shamt`  
-Logical right shift immediate:  
-> `x[rd] = x[rs1] >>u shamt`
+**Implementation**:  
+`x[rd] = x[rs1] | x[rs2]`
 
 ---
 
-### 📥 Load Instruction
+### `xor rd, rs1, rs2`
 
-#### `lw rd, offset(rs1)`
+| Bits     | 31–27 | 26–25 | 24–20 | 19–15 | 14–12 | 11–7 | 6–2   | 1–0 |
+|----------|-------|-------|-------|-------|--------|------|--------|-----|
+| Value    | 00000 | 00    | rs2   | rs1   | 100    | rd   | 01100  | 11  |
 
-Load 32-bit word from memory at address `rs1 + offset`, sign-extend to `XLEN`:
+**Description**: Bitwise XOR of `rs1` and `rs2`.
 
-> `x[rd] = sext(M[x[rs1] + sext(offset)][31:0])`
-
----
-
-### 📤 Store Instruction
-
-#### `sw rs2, offset(rs1)`
-
-Store 32-bit word from `rs2` into memory:
-
-> `M[x[rs1] + sext(offset)] = x[rs2][31:0]`
+**Implementation**:  
+`x[rd] = x[rs1] ^ x[rs2]`
 
 ---
 
-## 🛠 Notes
+### `andi rd, rs1, imm`
 
-- All immediates are sign-extended 12-bit unless specified.
-- Overflow is ignored (wrap-around behavior).
-- Instructions are based on the [RISC-V Unprivileged ISA Spec v2.2](https://github.com/riscv/riscv-isa-manual).
+| Bits     | 31–20         | 19–15 | 14–12 | 11–7 | 6–2   | 1–0 |
+|----------|---------------|-------|--------|------|--------|-----|
+| Value    | imm[11:0]     | rs1   | 111    | rd   | 00100  | 11  |
+
+**Description**: Bitwise AND of `rs1` with sign-extended immediate.
+
+**Implementation**:  
+`x[rd] = x[rs1] & sext(immediate)`
 
 ---
 
-## 📂 License
+### `ori rd, rs1, imm`
 
-This project is licensed under the MIT License.
+| Bits     | 31–20         | 19–15 | 14–12 | 11–7 | 6–2   | 1–0 |
+|----------|---------------|-------|--------|------|--------|-----|
+| Value    | imm[11:0]     | rs1   | 110    | rd   | 00100  | 11  |
+
+**Description**: Bitwise OR of `rs1` with sign-extended immediate.
+
+**Implementation**:  
+`x[rd] = x[rs1] | sext(immediate)`
 
 ---
 
-## 🤝 Contributions
+### `xori rd, rs1, imm`
 
-Feel free to fork and contribute additional RV32I instructions or extensions (like RV32M, RV32F). PRs are welcome!
+| Bits     | 31–20         | 19–15 | 14–12 | 11–7 | 6–2   | 1–0 |
+|----------|---------------|-------|--------|------|--------|-----|
+| Value    | imm[11:0]     | rs1   | 100    | rd   | 00100  | 11  |
 
+**Description**: Bitwise XOR of `rs1` with sign-extended immediate.
+
+**Implementation**:  
+`x[rd] = x[rs1] ^ sext(immediate)`
+
+---
+
+## Shift Instructions
+
+### `sll rd, rs1, rs2`
+
+| Bits     | 31–27 | 26–25 | 24–20 | 19–15 | 14–12 | 11–7 | 6–2   | 1–0 |
+|----------|-------|-------|-------|-------|--------|------|--------|-----|
+| Value    | 00000 | 00    | rs2   | rs1   | 001    | rd   | 01100  | 11  |
+
+**Description**: Logical left shift of `rs1` by lower 5 bits of `rs2`.
+
+**Implementation**:  
+`x[rd] = x[rs1] << x[rs2]`
+
+---
+
+### `srl rd, rs1, rs2`
+
+**Same format as `sll`, with funct3 = `101`**
+
+**Description**: Logical right shift.
+
+**Implementation**:  
+`x[rd] = x[rs1] >>u x[rs2]`
+
+---
+
+### `sra rd, rs1, rs2`
+
+| Bits     | 31–27 | 26–25 | 24–20 | 19–15 | 14–12 | 11–7 | 6–2   | 1–0 |
+|----------|-------|-------|-------|-------|--------|------|--------|-----|
+| Value    | 01000 | 00    | rs2   | rs1   | 101    | rd   | 01100  | 11  |
+
+**Description**: Arithmetic right shift of `rs1` by `rs2`.
+
+**Implementation**:  
+`x[rd] = x[rs1] >>s x[rs2]`
+
+---
+
+### `slli rd, rs1, shamt`
+
+| Bits     | 31–27 | 26–25 | 24–20 | 19–15 | 14–12 | 11–7 | 6–2   | 1–0 |
+|----------|-------|-------|--------|-------|--------|------|--------|-----|
+| Value    | 00000 | 0X    | shamt | rs1   | 001    | rd   | 00100  | 11  |
+
+**Description**: Logical left shift by immediate.
+
+**Implementation**:  
+`x[rd] = x[rs1] << shamt`
+
+---
+
+### `srli rd, rs1, shamt`
+
+**Same format as `slli`, with funct3 = `101`**
+
+**Description**: Logical right shift by immediate.
+
+**Implementation**:  
+`x[rd] = x[rs1] >>u shamt`
+
+---
+
+## Load/Store Instructions
+
+### `lw rd, offset(rs1)`
+
+| Bits     | 31–20         | 19–15 | 14–12 | 11–7 | 6–2   | 1–0 |
+|----------|---------------|--------|--------|------|--------|-----|
+| Value    | offset[11:0]  | rs1    | 010    | rd   | 00000  | 11  |
+
+**Description**: Load 32-bit word from memory and sign-extend.
+
+**Implementation**:  
+`x[rd] = sext(M[x[rs1] + sext(offset)][31:0])`
+
+---
+
+### `sw rs2, offset(rs1)`
+
+| Bits     | 31–25         | 24–20 | 19–15 | 14–12 | 11–7         | 6–2   | 1–0 |
+|----------|---------------|--------|--------|--------|---------------|--------|-----|
+| Value    | offset[11:5]  | rs2    | rs1    | 010    | offset[4:0]   | 01000  | 11  |
+
+**Description**: Store 32-bit word from `rs2` into memory.
+
+**Implementation**:  
+`M[x[rs1] + sext(offset)] = x[rs2][31:0]`
+
+---
+
+## Notes
+
+- All immediate fields are sign-extended unless stated.
+- Overflow is ignored (wrap-around).
+- Conforms to RISC-V Unprivileged ISA Spec v2.2.
