@@ -187,7 +187,7 @@ Each instruction includes:
 | Value    | 0000000 | shamt  | rs1    | 101    | rd   | 0010011  |
 
 **Implementation**:  
-`x[rd] = x[rs1] >>u shamt`
+`x[rd] = x[rs1] >> shamt`
 
 ---
 
@@ -208,9 +208,9 @@ Each instruction includes:
 
 ### `sw rs2, offset(rs1)`
 
-| Bits     | 31–25        | 24–20 | 19–15 | 14–12 | 11–7        | 6–0     |
-|----------|--------------|--------|--------|--------|--------------|----------|
-| Value    | offset[11:5] | rs2    | rs1    | 010    | offset[4:0]  | 0100011  |
+| Bits     | 31–20       | 19–15 | 14–12 | 11–7 | 6–0     |
+|----------|-------------|--------|--------|------|----------|
+| Value    | offset[11:0]| rs1    | 010    | rd   | 0100011  |
 
 **Description**: Store 32-bit word from `rs2` into memory.
 
