@@ -9,8 +9,7 @@ Conforms to RISC-V Unprivileged ISA Spec v2.2.
 Each instruction includes:
 - Arithmetic - add,sub,addi
 - Logical - and,or,xor,andi,ori,xori
-- Shift - sll,srl,slli,srli,sra
-- Branch and Jump - beq,bne
+- Shift - sll,srl,sra,slli,srli,srai
 - Branch and Jump - beq,bne
 
 ---
@@ -183,7 +182,7 @@ Each instruction includes:
 |----------|---------|--------|--------|--------|------|----------|
 | Value    | 0100000 | shamt  | rs1    | 101    | rd   | 0010011  |
 
-**Description**: Performs logical right shift on the value in register rs1 by the shift amount.
+**Description**: Performs arthemetic right shift on the value in register rs1 by the shift amount.
 **Implementation**:  
 `x[rd] = x[rs1] >> shamt (unsigned)`
 
@@ -195,7 +194,7 @@ Each instruction includes:
 |----------|---------|--------|--------|--------|------|----------|
 | Value    | 0000000 | shamt  | rs1    | 101    | rd   | 0010011  |
 
-**Description**: Performs arithmetic right shift on the value in register rs1 by the shift amount.
+**Description**: Performs logical right shift on the value in register rs1 by the shift amount.
 **Implementation**:  
 `x[rd] = x[rs1] >> shamt (signed)`
 
