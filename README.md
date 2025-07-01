@@ -111,7 +111,7 @@ Each instruction includes:
 
 | Bits     | 31–20       | 19–15 | 14–12 | 11–7 | 6–0     |
 |----------|-------------|--------|--------|------|----------|
-| Value    | imm[11:0]   | rs1    | 111    | rd   | 0010011  |
+| Value    | imm[11:0]   | rs1    | 110    | rd   | 0010011  |
 
 **Description**: Bitwise OR of `rs1` with sign-extended immediate.
 
