@@ -15,7 +15,7 @@ if_id_reg_t if_id, if_id_nxt;
 pipeline_reg #(.N($bits(if_id_reg_t))) if_id_pipe (
     .clk(clk),
     .rst(rst),
-    .write_en(write_if_id),
+    .write_en(),
     .in(if_id_nxt),
     .out(if_id)
 );
@@ -39,7 +39,7 @@ assign next_pc = (branch_taken_prediction) ? branch_prediction_target : pc + 4;
 instr_mem imem (
     .PCin        (pc),
     .rst         (rst),
-    .instruction (instr)
+    .instruction (if_id_nxt.instruction)
 );
 
 branch_predictor bp (
@@ -86,16 +86,42 @@ typedef struct packed {
 
 } id_ex_reg_t;
 
+id_ex_reg_t id_ex, id_ex_nxt;
+pipeline_reg #(.N($bits(id_ex_reg_t))) id_ex_pipe (
+    .clk(clk),
+    .rst(rst),
+    .write_en(),
+    .in(id_ex_nxt),
+    .out(id_ex)
+);
 
+regfile regfile (
+    .readregA (id_ex_nxt.rs1),
+    .readregB (id_ex_nxt.rs2),
+    .writereg (),
+    .writedata (),
+    .clk (clk),
+    .rst (rst),
+    .regwrite (regwrite)
+    .readdataA (id_ex_nxt.rs1_val),
+    .readdataB (id_ex_nxt.rs2_val)
+);
+
+assign id_ex_nxt.rs1 = if_id.instruction[19:15]; // rs1 field from instruction
+assign id_ex_nxt.rs2 = if_id.instruction[24:20]; // rs2 field from instruction
+assign id_ex_nxt.rd  = if_id.instruction[11:7];  // rd field
 
 controlunit CU (
-    .op        (opcode),
-    .ALUop     (ALUop),
-    .ALUsrc    (ALUsrc),
-    .MtoR      (MtoR),
-    .regwrite  (regwrite),
-    .memread   (memread),
-    .memwrite  (memwrite),
-    .branch    (branch)
+    .op        (id_ex_nxt.Opcode),
+    .ALUop     (id_ex_nxt.ALUop),
+    .ALUsrc    (id_ex_nxt.ALUsrc),
+    .MtoR      (id_ex_nxt.MtoR),
+    .regwrite  (id_ex_nxt.regwrite),
+    .memread   (id_ex_nxt.memread),
+    .memwrite  (id_ex_nxt.memwrite),
+    .branch    (id_ex_nxt.branch)
 );
+
+
+
 endmodule
