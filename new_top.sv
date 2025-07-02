@@ -55,6 +55,47 @@ branch_predictor bp (
     .prediction_taken  (branch_taken_prediction),
     .state             (if_id_nxt.branch_state)
 );
+///////////////////
 
 
+typedef struct packed {
+    // Data signals
+    logic [31:0] pc;           // PC of instruction
+    logic [31:0] rs1_val;      // Value from source register 1
+    logic [31:0] rs2_val;      // Value from source register 2
+    logic [4:0]  rd;           // Destination register
+    logic [31:0] imm;          // Sign-extended immediate
+    logic [6:0]  opcode;       // Opcode (optional, if needed later)
+    logic [2:0]  funct3;       // funct3 for ALU/branch decisions
+    logic [6:0]  funct7;       // funct7 for ALU operations
+    logic [4:0]  rs1;          // Register ID for forwarding
+    logic [4:0]  rs2;          // Register ID for forwarding
+
+    // Control signals
+    logic [1:0]  ALUop;
+    logic        ALUsrc;
+    logic        MtoR;
+    logic        regwrite;
+    logic        memread;
+    logic        memwrite;
+    logic        branch;
+
+    // Optional: forwarding and prediction info
+    logic [1:0]  branch_state;        // For branch prediction FSM
+    logic [31:0] predicted_target;    // Used in EX stage to verify prediction
+
+} id_ex_reg_t;
+
+
+
+controlunit CU (
+    .op        (opcode),
+    .ALUop     (ALUop),
+    .ALUsrc    (ALUsrc),
+    .MtoR      (MtoR),
+    .regwrite  (regwrite),
+    .memread   (memread),
+    .memwrite  (memwrite),
+    .branch    (branch)
+);
 endmodule
