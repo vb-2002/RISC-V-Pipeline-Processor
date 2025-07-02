@@ -21,7 +21,7 @@ pipeline_reg #(.N($bits(if_id_reg_t))) if_id_pipe (
 );
 
 logic [31:0] pc, next_pc;
-logic [31:0] instr;
+
 
 // PC register
 always_ff @(posedge clk or posedge rst) begin
@@ -46,10 +46,10 @@ branch_predictor bp (
     .clk               (clk),
     .rst               (rst),
     .pc_fetch          (pc),
-    .update_en         (branch_update_en),
+    .update_en         (if_id_nxt.branch), // Update on branch instruction
     .branch_taken      (branch_taken_actual),
     .resolved_pc       (if_id.pc),
-    .resolved_target   (resolved_target),
+    .resolved_target   (),
     .resolved_state    (if_id.bp_state),
     .predicted_target  (branch_prediction_target),
     .prediction_taken  (branch_taken_prediction),
@@ -110,6 +110,10 @@ regfile regfile (
 assign id_ex_nxt.rs1 = if_id.instruction[19:15]; // rs1 field from instruction
 assign id_ex_nxt.rs2 = if_id.instruction[24:20]; // rs2 field from instruction
 assign id_ex_nxt.rd  = if_id.instruction[11:7];  // rd field
+assign id_ex_nxt.Opcode = if_id.instruction[6:0]; // Opcode field
+assign id_ex_nxt.funct3 = if_id.instruction[14:12]; // funct3 field
+assign id_ex_nxt.funct7 = if_id.instruction[31:25]; // funct7 field
+assign id_ex_nxt.pc = if_id.pc; // PC from IF stage
 
 controlunit CU (
     .op        (id_ex_nxt.Opcode),
