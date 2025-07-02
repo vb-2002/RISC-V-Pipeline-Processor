@@ -1,4 +1,4 @@
-// RISC V Reg File
+
 module regfile(
     input [4:0]readregA,
     input [4:0]readregB,
