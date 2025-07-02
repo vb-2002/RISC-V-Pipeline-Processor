@@ -219,7 +219,7 @@ Each instruction includes:
 |----------|-------------|--------|--------|------|----------|
 | Value    | offset[11:0]| rs1    | 010    | rd   | 0000011  |
 
-**Description**: Load 32-bit word from memory and sign-extend.
+**Description**: Load 32-bit word from memory.
 
 **Implementation**:  
 `x[rd] = M[x[rs1] + sext(offset)]`
@@ -232,7 +232,7 @@ Each instruction includes:
 |----------|-------------|--------|--------|------|----------|
 | Value    | offset[11:0]| rs1    | 010    | rd   | 0100011  |
 
-**Description**: Store 32-bit word from `rs2` into memory.
+**Description**: Store 32-bit word into memory.
 
 **Implementation**:  
 `M[x[rs1] + sext(offset)] = x[rs2]`
