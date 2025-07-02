@@ -10,6 +10,7 @@ typedef struct packed {
     logic [31:0] pc;
     logic [31:0] instruction;
     logic [1:0]  bp_state;
+    logic [31:0] predicted_target; // Target address predicted by branch predictor
 } if_id_reg_t;
 
 if_id_reg_t if_id, if_id_nxt;
@@ -41,7 +42,7 @@ assign next_pc = flush ? resolved_target :
                  (branch_taken_prediction ? branch_prediction_target : pc + 4);
 
 assign if_id_nxt.pc = pc;
-
+assign if_id_nxt.predicted_target = branch_prediction_target;
 // ----------------------------------------
 // Instruction Memory
 // ----------------------------------------
@@ -126,9 +127,7 @@ imm_gen imm_gen (
 
 // Register File
 logic [31:0] rs1_val, rs2_val;
-logic [4:0]  writereg;
-logic [31:0] writedata;
-logic        regwrite;
+
 
 regfile regfile (
     .readregA(id_ex_nxt.rs1),
@@ -136,7 +135,6 @@ regfile regfile (
     .writereg(mem_wb.rd),       
     .writedata(reg_write_data),     
     .clk(clk),
-    .rst(rst),
     .RegWrite(mem_wb.regwrite),       
     .readdataA(rs1_val),
     .readdataB(rs2_val)
@@ -160,9 +158,9 @@ controlunit CU (
 // ----------------------------------------
 // Branch Resolution (in ID stage)
 // ----------------------------------------
-logic rs1_rs2_compare;
-assign rs1_rs2_compare = (id_ex_nxt.rs1_val == id_ex_nxt.rs2_val);
-
+// Calculate the target address for branches
+// This is done in ID stage to allow for branch prediction
+// and to resolve branches early in the pipeline
 // Correct target address
 assign resolved_target = id_ex_nxt.pc + id_ex_nxt.imm;
 
@@ -184,8 +182,8 @@ logic [3:0] ALUcontrol;
 
 ALUcontrol alu_control (
     .ALUop(id_ex.ALUop),
-    .funct3(id_ex.funct3),
-    .funct7(id_ex.funct7),
+    .funct_3(id_ex.funct3),
+    .funct_7(id_ex.funct7),
     .operation(ALUcontrol)
 );
 
@@ -195,7 +193,6 @@ logic [31:0] ALU_B;
 assign ALU_B = id_ex.ALUsrc ? id_ex.imm : id_ex.rs2_val;
 
 ALU alu (
-    .clk(clk),
     .A(id_ex.rs1_val),
     .B(ALU_B),
     .ALUcontrol(ALUcontrol),

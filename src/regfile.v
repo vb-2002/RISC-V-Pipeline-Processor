@@ -12,7 +12,6 @@ module regfile(
     input [31:0] writedata,
     input        RegWrite,
     input        clk,
-    input        rst,
     output reg [31:0] readdataA,
     output reg [31:0] readdataB
 );

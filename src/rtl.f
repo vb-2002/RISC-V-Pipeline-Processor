@@ -1,0 +1,10 @@
+src/ALU.sv
+src/ALUcontrol.sv
+src/branch_predictor.sv
+src/controlunit.sv
+src/data_mem.v
+src/imm_gen.sv
+src/instr_mem.v
+src/pipeline_reg.sv
+src/regfile.v
+src/top.sv

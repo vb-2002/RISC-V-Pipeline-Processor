@@ -1,5 +1,4 @@
 module ALU (
-    input  logic        clk,         // Clock input (not used here)
     input  logic [31:0] A,           // Operand A
     input  logic [31:0] B,           // Operand B
     input  logic [3:0]  ALUcontrol,  // Operation selector

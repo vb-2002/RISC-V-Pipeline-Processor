@@ -8,7 +8,6 @@
 // ------------------------------------------------------
 module data_mem (
     input clk,                    // Clock input
-    input rst,                    // Reset input
     input r_enable,               // Read enable
     input w_enable,               // Write enable
     input [31:0] address,         // Full 32-bit address input

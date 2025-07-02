@@ -31,28 +31,27 @@ module branch_predictor (
     assign update_tag   = resolved_pc[31:7];
 
     // -------------------------------------
-    // BTB Entry Format (61 bits):
-    // [60]     = valid bit
-    // [59:35]  = tag (25 bits)
-    // [34:3]   = target address
-    // [2:1]    = FSM state
+    // BTB Entry Format (60 bits):
+    // [59]     = valid bit
+    // [58:34]  = tag (25 bits)
+    // [33:2]   = target address
+    // [1:0]    = FSM state
     // -------------------------------------
-    logic [60:0] btb [31:0];  // 32 entries, each 61 bits wide
+    logic [59:0] btb [31:0];  // 32 entries, each 60 bits wide
 
     // Read signals for Fetch stage
     logic        entry_valid;
     logic [24:0] entry_tag;
     logic [31:0] entry_target;
-    logic [1:0]  entry_state;
 
     // -------------------------------------
     // Fetch Stage Lookup
     // -------------------------------------
     always_comb begin
-        entry_valid  = btb[fetch_index][60];
-        entry_tag    = btb[fetch_index][59:35];
-        entry_target = btb[fetch_index][34:3];
-        state        = btb[fetch_index][2:1];
+        entry_valid  = btb[fetch_index][59];
+        entry_tag    = btb[fetch_index][58:34];
+        entry_target = btb[fetch_index][33:2];
+        state        = btb[fetch_index][1:0];
 
         if (entry_valid && (entry_tag == fetch_tag)) begin
             predicted_target = entry_target;
@@ -92,7 +91,7 @@ module branch_predictor (
     always_ff @(posedge clk or posedge rst) begin
         if (rst) begin
             for (int i = 0; i < 32; i++) begin
-                btb[i] <= 61'd0;
+                btb[i] <= 60'd0;
             end
         end else if (update_en) begin
             btb[update_index] <= {1'b1, update_tag, resolved_target, next_state};
