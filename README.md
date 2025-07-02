@@ -246,7 +246,7 @@ Each instruction includes:
 
 | Bits     | 31         | 30-25         | 24–20  | 19–15 | 14-12 | 11–8         |  7          | 6-0     |
 |----------|------------|---------------|--------|-------|-------|--------------|-------------|---------|
-| Value    | offset[12] | offset [10:5] | rs2    | rs1   | 010   |  offset[4:1] | offset [11] | 0100011 |
+| Value    | offset[12] | offset [10:5] | rs2    | rs1   | 000   |  offset[4:1] | offset [11] | 1100011 |
 
 **Description**: Branch if rs1 and rs2 are equal. 
 
@@ -259,7 +259,7 @@ Each instruction includes:
 
 | Bits     | 31         | 30-25         | 24–20  | 19–15 | 14-12 | 11–8         |  7          | 6-0     |
 |----------|------------|---------------|--------|-------|-------|--------------|-------------|---------|
-| Value    | offset[12] | offset [10:5] | rs2    | rs1   | 010   |  offset[4:1] | offset [11] | 0100011 |
+| Value    | offset[12] | offset [10:5] | rs2    | rs1   | 001   |  offset[4:1] | offset [11] | 1100011 |
 
 **Description**: Branch if rs1 and rs2 are not equal. 
 
