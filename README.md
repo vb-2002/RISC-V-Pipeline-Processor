@@ -51,7 +51,7 @@ Each instruction includes:
 **Description**: Adds the 12-bit sign-extended immediate to `rs1` and stores the result in `rd`.
 
 **Implementation**:  
-`x[rd] = x[rs1] + sext(immediate)`
+`x[rd] = x[rs1] + s_extend(immediate)`
 
 ---
 
@@ -103,7 +103,7 @@ Each instruction includes:
 **Description**: Bitwise AND of `rs1` with sign-extended immediate.
 
 **Implementation**:  
-`x[rd] = x[rs1] & sext(immediate)`
+`x[rd] = x[rs1] & s_extend(immediate)`
 
 ---
 
@@ -116,7 +116,7 @@ Each instruction includes:
 **Description**: Bitwise OR of `rs1` with sign-extended immediate.
 
 **Implementation**:  
-`x[rd] = x[rs1] | sext(immediate)`
+`x[rd] = x[rs1] | s_extend(immediate)`
 
 ---
 
@@ -129,7 +129,7 @@ Each instruction includes:
 **Description**: Bitwise XOR of `rs1` with sign-extended immediate.
 
 **Implementation**:  
-`x[rd] = x[rs1] ^ sext(immediate)`
+`x[rd] = x[rs1] ^ s_extend(immediate)`
 
 ---
 
@@ -222,7 +222,7 @@ Each instruction includes:
 **Description**: Load 32-bit word from memory.
 
 **Implementation**:  
-`x[rd] = M[x[rs1] + sext(offset)]`
+`x[rd] = M[x[rs1] + s_extend(offset)]`
 
 ---
 
@@ -235,7 +235,7 @@ Each instruction includes:
 **Description**: Store 32-bit word into memory.
 
 **Implementation**:  
-`M[x[rs1] + sext(offset)] = x[rs2]`
+`M[x[rs1] + s_extend(offset)] = x[rs2]`
 
 --------
 
@@ -251,7 +251,7 @@ Each instruction includes:
 **Description**: Branch if rs1 and rs2 are equal. 
 
 **Implementation**:  
-`if (x[rs1] == x[rs2]) PC = (PC + 4) + 4*sext(imm)`
+`if (x[rs1] == x[rs2]) PC = (PC + 4) + 4*s_extend(imm)`
 
 
 ### `bne rs1, rs2, imm`
@@ -264,6 +264,6 @@ Each instruction includes:
 **Description**: Branch if rs1 and rs2 are not equal. 
 
 **Implementation**:  
-`if (x[rs1] != x[rs2]) PC = (PC + 4) + 4*sext(imm)`
+`if (x[rs1] != x[rs2]) PC = (PC + 4) + 4*s_extend(imm)`
 
 ----------------
