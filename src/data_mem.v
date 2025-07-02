@@ -4,9 +4,11 @@
 // - Combinational read
 // - Synchronous write (posedge clk)
 // ------------------------------------------------------
-
+// Note: This module is not sythesiable. It is a bmod intended for simulation purposes only.
+// ------------------------------------------------------
 module data_mem (
     input clk,                    // Clock input
+    input rst,                    // Reset input
     input r_enable,               // Read enable
     input w_enable,               // Write enable
     input [31:0] address,         // Full 32-bit address input
@@ -14,16 +16,13 @@ module data_mem (
     output reg [31:0] re_data     // Data read
 );
 
-    reg [31:0] dmem [0:31];       // 32-word memory
+    reg [31:0] dmem [31:0];       // 32-word memory
     wire [4:0] word_addr = address[6:2]; // Word-aligned index
     integer i;
 
-    // Initialize memory with index values
-    initial begin
-        for (i = 0; i < 32; i = i + 1)
-            dmem[i] = i;
+    initial begin 
+        $readmemh("./src/data_mem.txt",dmem);
     end
-
     // Synchronous write
     always @(posedge clk) begin
         if (w_enable)
