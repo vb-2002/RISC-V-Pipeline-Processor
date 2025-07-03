@@ -19,7 +19,7 @@ module fwdunit(
 //#If EX hazard exist value from exmem is put in ALU
 //#If MEM hazard exist value from memwb is put in ALU
 //#If both exist EX given priority over MEM
-
+7619669260
 always_comb
 begin
     //if I type
