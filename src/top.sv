@@ -2,6 +2,13 @@ module top (
     input logic clk,
     input logic rst
 );
+
+logic [31:0] pc, next_pc;
+logic        branch_taken_prediction;
+logic [31:0] branch_prediction_target;
+logic flush_if_id,PCsrc;
+logic PCWrite;
+
 //IF Stage
 // ----------------------------------------
 // IF/ID Pipeline Register Definition
@@ -18,8 +25,8 @@ if_id_reg_t if_id, if_id_nxt;
 pipeline_reg #(.N($bits(if_id_reg_t))) if_id_pipe (
     .clk(clk),
     .rst(rst),
-    .write_en(1'b1), // Assume always write for now
-    .flush(flush),   
+    .write_en(~stall), // Assume always write for now
+    .flush(flush_if_id), // Flush condition for IF/ID stage
     .in(if_id_nxt),
     .out(if_id)
 );
@@ -27,18 +34,15 @@ pipeline_reg #(.N($bits(if_id_reg_t))) if_id_pipe (
 // ----------------------------------------
 // Program Counter Logic
 // ----------------------------------------
-logic [31:0] pc, next_pc;
-logic        branch_taken_prediction;
-logic [31:0] branch_prediction_target;
 
 always_ff @(posedge clk or posedge rst) begin
     if (rst)
         pc <= 32'h00000000;
-    else
+    else if (PCWrite) // PCWriteEn is a control signal to enable PC update
         pc <= next_pc;
 end
 
-assign next_pc = flush ? resolved_target :
+assign next_pc = PCsrc ? pc_resolved :
                  (branch_taken_prediction ? branch_prediction_target : pc + 4);
 
 assign if_id_nxt.pc = pc;
@@ -55,23 +59,29 @@ instr_mem instr_mem (
 // ----------------------------------------
 // Branch Predictor
 // ----------------------------------------
-logic branch_taken;
-logic [31:0] resolved_target;
+
 
 branch_predictor bp (
     .clk(clk),
     .rst(rst),
     .pc_fetch(pc),
-    .update_en(id_ex_nxt.branch),
-    .branch_taken(branch_taken),
+    .update_en(id_inst_branch),
+    .branch_taken(branch_taken_actual),
     .resolved_pc(if_id.pc),
-    .resolved_target(resolved_target),
+    .resolved_target(branch_actual_target),
     .resolved_state(if_id.bp_state),
     .predicted_target(branch_prediction_target),
     .prediction_taken(branch_taken_prediction),
     .state(if_id_nxt.bp_state)
 );
 // ID Stage
+
+logic branch_taken_actual;
+logic [31:0] branch_actual_target, pc_resolved;
+logic flush_id_ex;
+logic [31:0] rs1_val, rs2_val;
+logic id_inst_branch; // Indicates if the current instruction in ID stage is a branch instruction
+logic stall;
 // ----------------------------------------
 // ID/EX Pipeline Register Definition
 // ----------------------------------------
@@ -93,7 +103,6 @@ typedef struct packed {
     logic        regwrite;
     logic        memread;
     logic        memwrite;
-    logic        branch;
 } id_ex_reg_t;
 
 id_ex_reg_t id_ex, id_ex_nxt;
@@ -101,11 +110,12 @@ id_ex_reg_t id_ex, id_ex_nxt;
 pipeline_reg #(.N($bits(id_ex_reg_t))) id_ex_pipe (
     .clk(clk),
     .rst(rst),
-    .write_en(1'b1),
-    .flush(flush), 
+    .write_en(1'b1), // Write only if not stalled
+    .flush(flush_id_ex), // Flush condition for ID/EX stage
     .in(id_ex_nxt),
     .out(id_ex)
 );
+assign flush_id_ex = stall;
 // ----------------------------------------
 // Decode Stage Logic
 // ----------------------------------------
@@ -126,9 +136,6 @@ imm_gen imm_gen (
 );
 
 // Register File
-logic [31:0] rs1_val, rs2_val;
-
-
 regfile regfile (
     .readregA(id_ex_nxt.rs1),
     .readregB(id_ex_nxt.rs2),
@@ -143,6 +150,7 @@ regfile regfile (
 assign id_ex_nxt.rs1_val = rs1_val;
 assign id_ex_nxt.rs2_val = rs2_val;
 
+
 // Control Unit
 controlunit CU (
     .op(id_ex_nxt.opcode),
@@ -152,7 +160,17 @@ controlunit CU (
     .regwrite(id_ex_nxt.regwrite),
     .memread(id_ex_nxt.memread),
     .memwrite(id_ex_nxt.memwrite),
-    .branch(id_ex_nxt.branch)
+    .branch(id_inst_branch)
+);
+
+// Hazard Detection Unit
+hzd_detection_unit hzd_unit (
+    .if_id_rs1(id_ex_nxt.rs1),
+    .if_id_rs2(id_ex_nxt.rs2),
+    .id_ex_MemRead(id_ex.memread),
+    .id_ex_rd(id_ex.rd),
+    .PCWrite(PCWrite),
+    .stall(stall) // Stall signal to control pipeline flushing
 );
 
 // ----------------------------------------
@@ -162,23 +180,26 @@ controlunit CU (
 // This is done in ID stage to allow for branch prediction
 // and to resolve branches early in the pipeline
 // Correct target address
-assign resolved_target = id_ex_nxt.pc + id_ex_nxt.imm;
+assign branch_actual_target = id_ex_nxt.pc + id_ex_nxt.imm;
+assign pc_resolved = branch_taken_actual ? branch_actual_target : id_ex_nxt.pc + 4;
 
 // Branch taken condition (simple BEQ and BNE)
-assign branch_taken = id_ex_nxt.branch && (
+assign branch_taken_actual = id_inst_branch && (
     (id_ex_nxt.funct3 == 3'b000 && (id_ex_nxt.rs1_val == id_ex_nxt.rs2_val)) ||  // BEQ
     (id_ex_nxt.funct3 == 3'b001 && (id_ex_nxt.rs1_val != id_ex_nxt.rs2_val))     // BNE
 );
 
 // Pipeline flush logic
-logic flush;
-
 // Flush condition: if branch was mispredicted
-assign flush = id_ex_nxt.branch && (resolved_target != if_id.predicted_target);
+assign flush_if_id = id_inst_branch && (pc_resolved != if_id.predicted_target);
+assign PCsrc = flush_if_id;
 
 // EX Stage ------------------------
 
 logic [3:0] ALUcontrol;
+logic [31:0] ALU_A;
+logic [31:0] ALU_B,B;
+logic [1:0] forwardA, forwardB; 
 
 ALUcontrol alu_control (
     .ALUop(id_ex.ALUop),
@@ -187,13 +208,42 @@ ALUcontrol alu_control (
     .operation(ALUcontrol)
 );
 
-logic [31:0] ALU_B;
+data_fwd_unit fwd_unit (
+    .id_ex_rs1(id_ex.rs1),
+    .id_ex_rs2(id_ex.rs2),
+    .ex_mem_RegWrite(ex_mem.regwrite),
+    .ex_mem_rd(ex_mem.rd),
+    .mem_wb_RegWrite(mem_wb.regwrite),
+    .mem_wb_rd(mem_wb.rd),
+    .forwardA(forwardA),
+    .forwardB(forwardB)
+);
+
+always_comb begin
+    // Forwarding logic for ALU A input
+    case (forwardA)
+        2'b00: ALU_A = id_ex.rs1_val; // No forwarding
+        2'b01: ALU_A = reg_write_data; // Forward from MEM/WB
+        2'b10: ALU_A = ex_mem.alu_result; // Forward from EX/MEM
+        default: ALU_A = id_ex.rs1_val; // Default case
+    endcase
+
+    // Forwarding logic for ALU B input
+    case (forwardB)
+        2'b00: B = id_ex.rs2_val; // No forwarding
+        2'b01: B = reg_write_data; // Forward from MEM/WB
+        2'b10: B = ex_mem.alu_result; // Forward from EX/MEM
+        default: B = id_ex.rs2_val; // Default case
+    endcase
+    
+end
+
 // ALU B input selection based on ALUsrc
 // If ALUsrc is 1, use immediate value; otherwise, use rs2 value
-assign ALU_B = id_ex.ALUsrc ? id_ex.imm : id_ex.rs2_val;
+assign ALU_B = id_ex.ALUsrc ? id_ex.imm : B;
 
 ALU alu (
-    .A(id_ex.rs1_val),
+    .A(ALU_A),
     .B(ALU_B),
     .ALUcontrol(ALUcontrol),
     .result(ex_mem_nxt.alu_result),

@@ -1,65 +1,39 @@
 // DATA FORWARD UNIT
 
-module fwdunit(
-    input  logic [4:0] idex_rs1,
-    input logic [4:0] idex_rs2,
-    input logic exmem_RegWrite,
-    input logic [4:0] exmem_rd,
-    input logic memwb_RegWrite,
-    input logic [4:0] memwb_rd,
-    input logic [1:0] ALUOp,
+module data_fwd_unit(
+    input  logic [4:0] id_ex_rs1,
+    input  logic [4:0] id_ex_rs2,
+    input  logic       ex_mem_RegWrite,
+    input  logic [4:0] ex_mem_rd,
+    input  logic       mem_wb_RegWrite,
+    input  logic [4:0] mem_wb_rd,
     output logic [1:0] forwardA,
-    output logic [1:0] forwardB);
-
-//Limitations of the module
-//    1. It assumes all instruction R type, cases of hazard having other types not included yet.
+    output logic [1:0] forwardB
+);
 
 //---- Function ----
-//#Two signals forwardA & forwardB decide the input to ALU. 
-//#If EX hazard exist value from exmem is put in ALU
-//#If MEM hazard exist value from memwb is put in ALU
-//#If both exist EX given priority over MEM
-7619669260
-always_comb
-begin
-    //if I type
-    if(ALUOp == 2'b11)
-    begin
+// Two signals forwardA & forwardB decide the input to ALU. 
+// If EX hazard exists, value from EX/MEM is forwarded.
+// If MEM hazard exists, value from MEM/WB is forwarded.
+// If both exist, EX has priority over MEM.
 
-        //assign forwardA signal 
-        if(exmem_RegWrite == 1'b1 && exmem_rd != 5'b0 && exmem_rd == idex_rs1)
-            forwardA = 2'b10;
-        else if(memwb_RegWrite == 1'b1 && memwb_rd != 5'b0 && memwb_rd == idex_rs1)
-                forwardA = 2'b01;
-        else
-            forwardA = 2'b00;
-
-        //assign forwardB signal
-        forwardB = 2'b00;
-
-    end
-
-    //if other types dont skip rs2
+always_comb begin
+    // ForwardA logic
+    if (ex_mem_RegWrite && ex_mem_rd != 5'b0 && ex_mem_rd == id_ex_rs1)
+        forwardA = 2'b10;
+    else if (mem_wb_RegWrite && mem_wb_rd != 5'b0 && mem_wb_rd == id_ex_rs1)
+        forwardA = 2'b01;
     else
-    begin
+        forwardA = 2'b00;
 
-        //assign forwardA signal 
-        if(exmem_RegWrite == 1'b1 && exmem_rd != 5'b0 && exmem_rd == idex_rs1)
-            forwardA = 2'b10;
-        else if(memwb_RegWrite == 1'b1 && memwb_rd != 5'b0 && memwb_rd == idex_rs1)
-                forwardA = 2'b01;
-        else
-            forwardA = 2'b00;
-
-        //assign forwardB signal
-        if(exmem_RegWrite == 1'b1 && exmem_rd != 5'b0 && exmem_rd == idex_rs2)
-            forwardB = 2'b10;
-        else if(memwb_RegWrite == 1'b1 && memwb_rd != 5'b0 && memwb_rd == idex_rs2)
-                forwardB  = 2'b01;
-        else
-            forwardB = 2'b00;
-        
-    end
-
+    // ForwardB logic
+    if (ex_mem_RegWrite && ex_mem_rd != 5'b0 && ex_mem_rd == id_ex_rs2)
+        forwardB = 2'b10;
+    else if (mem_wb_RegWrite && mem_wb_rd != 5'b0 && mem_wb_rd == id_ex_rs2)
+        forwardB = 2'b01;
+    else
+        forwardB = 2'b00;
 end
+
 endmodule
+

@@ -1,11 +1,11 @@
-%Warning-PINCONNECTEMPTY: src/top.sv:200:6: Cell pin connected by name with empty reference: 'zeroflag'
-  200 |     .zeroflag()  
+%Warning-PINCONNECTEMPTY: src/top.sv:250:6: Cell pin connected by name with empty reference: 'zeroflag'
+  250 |     .zeroflag()  
       |      ^~~~~~~~
                           ... For warning description see https://verilator.org/warn/PINCONNECTEMPTY?v=5.036
                           ... Use "/* verilator lint_off PINCONNECTEMPTY */" and lint_on around source to disable this message.
-%Warning-UNUSEDSIGNAL: src/top.sv:99:13: Bits of signal are not used: 'id_ex'[167:136,34:28,17:8,0]
-                                       : ... note: In instance 'top'
-   99 | id_ex_reg_t id_ex, id_ex_nxt;
+%Warning-UNUSEDSIGNAL: src/top.sv:108:13: Bits of signal are not used: 'id_ex'[166:135,33:27]
+                                        : ... note: In instance 'top'
+  108 | id_ex_reg_t id_ex, id_ex_nxt;
       |             ^~~~~
                        ... For warning description see https://verilator.org/warn/UNUSEDSIGNAL?v=5.036
                        ... Use "/* verilator lint_off UNUSEDSIGNAL */" and lint_on around source to disable this message.
