@@ -8,7 +8,12 @@ logic        branch_taken_prediction;
 logic [31:0] branch_prediction_target;
 logic flush_if_id,PCsrc;
 logic PCWrite;
-
+logic branch_taken_actual;
+logic [31:0] branch_actual_target, pc_nxt_resolved;
+logic flush_id_ex;
+logic [31:0] rs1_val, rs2_val;
+logic id_inst_branch; // Indicates if the current instruction in ID stage is a branch instruction
+logic stall;
 //IF Stage
 // ----------------------------------------
 // IF/ID Pipeline Register Definition
@@ -74,12 +79,7 @@ branch_predictor bp (
 );
 // ID Stage
 
-logic branch_taken_actual;
-logic [31:0] branch_actual_target, pc_nxt_resolved;
-logic flush_id_ex;
-logic [31:0] rs1_val, rs2_val;
-logic id_inst_branch; // Indicates if the current instruction in ID stage is a branch instruction
-logic stall;
+
 // ----------------------------------------
 // ID/EX Pipeline Register Definition
 // ----------------------------------------
