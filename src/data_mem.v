@@ -20,7 +20,7 @@ module data_mem (
     integer i;
 
     initial begin 
-        $readmemh("./src/data_mem.txt",dmem);
+        $readmemh("./tb/data_mem.txt",dmem);
     end
     // Synchronous write
     always @(posedge clk) begin
