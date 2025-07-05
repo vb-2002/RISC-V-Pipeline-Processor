@@ -69,7 +69,7 @@ branch_predictor bp (
     .resolved_target(branch_actual_target),
     .resolved_state(if_id.bp_state),
     .predicted_target(branch_prediction_target),
-    .prediction_taken(branch_taken_prediction),
+    .branch_prediction(branch_taken_prediction),
     .state(if_id_nxt.bp_state)
 );
 // ID Stage
@@ -130,7 +130,7 @@ imm_gen imm_gen (
     .instr(if_id.instruction),
     .op(id_ex_nxt.opcode)
 );
-
+logic [31:0] reg_write_data;
 // Register File
 regfile regfile (
     .readregA(id_ex_nxt.rs1),
@@ -314,7 +314,7 @@ assign mem_wb_nxt.MtoR = ex_mem.MtoR;
 assign mem_wb_nxt.regwrite = ex_mem.regwrite;
 
 // WB Stage ------------------------
-logic [31:0] reg_write_data;
+
 
 assign reg_write_data = mem_wb.MtoR ? mem_wb.mem_data : mem_wb.alu_result;
 
