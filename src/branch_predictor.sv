@@ -14,15 +14,30 @@ module branch_predictor (
 
     // Outputs to Fetch stage
     output logic [31:0] predicted_target,
-    output logic        prediction_taken,
+    output logic        branch_prediction,
     output logic [1:0]  state
 );
 
     // -------------------------------------
-    // Indexing and Tag Extraction (Word-Aligned)
+    // BTB Entry Struct Definition
     // -------------------------------------
-    logic [4:0]   fetch_index, update_index;   // 32-entry BTB → 5-bit index
-    logic [24:0]  fetch_tag, update_tag;       // 25-bit tag = PC[31:7]
+    typedef struct packed {
+        logic        valid;
+        logic [24:0] tag;
+        logic [31:0] target;
+        logic [1:0]  fsm_state;
+    } btb_entry_t;
+
+    // -------------------------------------
+    // BTB Declaration
+    // -------------------------------------
+    btb_entry_t btb [31:0];  // 32-entry BTB
+
+    // -------------------------------------
+    // Indexing and Tag Extraction
+    // -------------------------------------
+    logic [4:0]   fetch_index, update_index;
+    logic [24:0]  fetch_tag, update_tag;
 
     assign fetch_index  = pc_fetch[6:2];
     assign fetch_tag    = pc_fetch[31:7];
@@ -31,35 +46,19 @@ module branch_predictor (
     assign update_tag   = resolved_pc[31:7];
 
     // -------------------------------------
-    // BTB Entry Format (60 bits):
-    // [59]     = valid bit
-    // [58:34]  = tag (25 bits)
-    // [33:2]   = target address
-    // [1:0]    = FSM state
-    // -------------------------------------
-    logic [59:0] btb [31:0];  // 32 entries, each 60 bits wide
-
-    // Read signals for Fetch stage
-    logic        entry_valid;
-    logic [24:0] entry_tag;
-    logic [31:0] entry_target;
-
-    // -------------------------------------
     // Fetch Stage Lookup
     // -------------------------------------
     always_comb begin
-        entry_valid  = btb[fetch_index][59];
-        entry_tag    = btb[fetch_index][58:34];
-        entry_target = btb[fetch_index][33:2];
-        state        = btb[fetch_index][1:0];
+        btb_entry_t entry = btb[fetch_index];
 
-        if (entry_valid && (entry_tag == fetch_tag)) begin
-            predicted_target = entry_target;
-            prediction_taken = (state[1] == 1'b1);  // Taken if WEAK_T or STRONG_T
+        if (entry.valid && (entry.tag == fetch_tag)) begin
+            predicted_target  = entry.target;
+            branch_prediction = (entry.fsm_state[1] == 1'b1);  // Taken if WEAK_T or STRONG_T
+            state             = entry.fsm_state;
         end else begin
-            predicted_target = pc_fetch + 4;
-            prediction_taken = 1'b0;
-            state            = 2'b00;  // STRONG_NT default
+            predicted_target  = pc_fetch + 4;
+            branch_prediction = 1'b0;
+            state             = 2'b00;  // STRONG_NT
         end
     end
 
@@ -86,15 +85,20 @@ module branch_predictor (
     end
 
     // -------------------------------------
-    // Update BTB on Branch Resolution (ID stage)
+    // BTB Update Logic
     // -------------------------------------
     always_ff @(posedge clk or posedge rst) begin
         if (rst) begin
             for (int i = 0; i < 32; i++) begin
-                btb[i] <= 60'd0;
+                btb[i] <= '0;
             end
         end else if (update_en) begin
-            btb[update_index] <= {1'b1, update_tag, resolved_target, next_state};
+            btb_entry_t new_entry;
+            new_entry.valid     = 1'b1;
+            new_entry.tag       = update_tag;
+            new_entry.target    = resolved_target;
+            new_entry.fsm_state = next_state;
+            btb[update_index]   <= new_entry;
         end
     end
 

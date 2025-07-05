@@ -3,7 +3,7 @@ module top (
     input logic rst
 );
 
-logic [31:0] pc, next_pc;
+logic [31:0] pc, pc_nxt;
 logic        branch_taken_prediction;
 logic [31:0] branch_prediction_target;
 logic flush_if_id,PCsrc;
@@ -17,7 +17,6 @@ typedef struct packed {
     logic [31:0] pc;
     logic [31:0] instruction;
     logic [1:0]  bp_state;
-    logic [31:0] predicted_target; // Target address predicted by branch predictor
 } if_id_reg_t;
 
 if_id_reg_t if_id, if_id_nxt;
@@ -39,14 +38,13 @@ always_ff @(posedge clk or posedge rst) begin
     if (rst)
         pc <= 32'h00000000;
     else if (PCWrite) // PCWriteEn is a control signal to enable PC update
-        pc <= next_pc;
+        pc <= pc_nxt;
 end
 
-assign next_pc = PCsrc ? pc_resolved :
+assign pc_nxt = PCsrc ? pc_nxt_resolved :
                  (branch_taken_prediction ? branch_prediction_target : pc + 4);
 
 assign if_id_nxt.pc = pc;
-assign if_id_nxt.predicted_target = branch_prediction_target;
 // ----------------------------------------
 // Instruction Memory
 // ----------------------------------------
@@ -77,7 +75,7 @@ branch_predictor bp (
 // ID Stage
 
 logic branch_taken_actual;
-logic [31:0] branch_actual_target, pc_resolved;
+logic [31:0] branch_actual_target, pc_nxt_resolved;
 logic flush_id_ex;
 logic [31:0] rs1_val, rs2_val;
 logic id_inst_branch; // Indicates if the current instruction in ID stage is a branch instruction
@@ -86,7 +84,6 @@ logic stall;
 // ID/EX Pipeline Register Definition
 // ----------------------------------------
 typedef struct packed {
-    logic [31:0] pc;
     logic [31:0] rs1_val;
     logic [31:0] rs2_val;
     logic [4:0]  rd;
@@ -120,7 +117,6 @@ assign flush_id_ex = stall;
 // Decode Stage Logic
 // ----------------------------------------
 
-assign id_ex_nxt.pc      = if_id.pc;
 assign id_ex_nxt.opcode  = if_id.instruction[6:0];
 assign id_ex_nxt.funct3  = if_id.instruction[14:12];
 assign id_ex_nxt.funct7  = if_id.instruction[31:25];
@@ -176,22 +172,22 @@ hzd_detection_unit hzd_unit (
 // ----------------------------------------
 // Branch Resolution (in ID stage)
 // ----------------------------------------
-// Calculate the target address for branches
-// This is done in ID stage to allow for branch prediction
-// and to resolve branches early in the pipeline
-// Correct target address
-assign branch_actual_target = id_ex_nxt.pc + id_ex_nxt.imm;
-assign pc_resolved = branch_taken_actual ? branch_actual_target : id_ex_nxt.pc + 4;
-
 // Branch taken condition (simple BEQ and BNE)
 assign branch_taken_actual = id_inst_branch && (
     (id_ex_nxt.funct3 == 3'b000 && (id_ex_nxt.rs1_val == id_ex_nxt.rs2_val)) ||  // BEQ
     (id_ex_nxt.funct3 == 3'b001 && (id_ex_nxt.rs1_val != id_ex_nxt.rs2_val))     // BNE
 );
 
+// Calculate the target address for branches
+// This is done in ID stage to allow for branch prediction
+// and to resolve branches early in the pipeline
+// Correct target address
+assign branch_actual_target = if_id.pc + id_ex_nxt.imm;
+assign pc_nxt_resolved = branch_taken_actual ? branch_actual_target : if_id.pc + 4;
+
 // Pipeline flush logic
 // Flush condition: if branch was mispredicted
-assign flush_if_id = id_inst_branch && (pc_resolved != if_id.predicted_target);
+assign flush_if_id = id_inst_branch && (pc_nxt_resolved != pc);
 assign PCsrc = flush_if_id;
 
 // EX Stage ------------------------
@@ -273,7 +269,7 @@ pipeline_reg #(.N($bits(ex_mem_reg_t))) ex_mem_pipe (
     .out(ex_mem)
 );
 
-assign ex_mem_nxt.rs2_val = id_ex.rs2_val;
+assign ex_mem_nxt.rs2_val = B;
 assign ex_mem_nxt.rd = id_ex.rd;
 assign ex_mem_nxt.MtoR = id_ex.MtoR;
 assign ex_mem_nxt.regwrite = id_ex.regwrite;
