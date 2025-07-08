@@ -165,9 +165,48 @@ hzd_detection_unit hzd_unit (
     .if_id_rs2(id_ex_nxt.rs2),
     .id_ex_MemRead(id_ex.memread),
     .id_ex_rd(id_ex.rd),
+    .id_ex_regwrite(id_ex.regwrite),
+    .ex_mem_MemRead(ex_mem.memread),
+    .ex_mem_rd(ex_mem.rd),
+    .branch(id_inst_branch),
     .PCWrite(PCWrite),
     .stall(stall) // Stall signal to control pipeline flushing
 );
+
+logic [1:0] forward1, forward2;
+logic [31:0] rs1_val_fwd, rs2_val_fwd;
+// Data Forwarding Unit
+// This unit checks if the rs1 or rs2 values need to be forwarded from EX/MEM or MEM/WB stages
+// and sets the forward control signals accordingly
+id_data_fwd_unit id_data_fwd_unit (
+    .if_id_rs1(id_ex_nxt.rs1),
+    .if_id_rs2(id_ex_nxt.rs2),
+    .ex_mem_RegWrite(ex_mem.regwrite),
+    .ex_mem_rd(ex_mem.rd),
+    .mem_wb_RegWrite(mem_wb.regwrite),
+    .mem_wb_rd(mem_wb.rd),
+    .forward1(forward1), // Forward control for rs1
+    .forward2(forward2)  // Forward control for rs2
+);
+
+always_comb begin
+    // Forwarding logic for ALU A input
+    case (forward1)
+        2'b00: rs1_val_fwd = id_ex_nxt.rs1_val; // No forwarding
+        2'b01: rs1_val_fwd = mem_wb.mem_data; // Forward from MEM/WB
+        2'b10: rs1_val_fwd = ex_mem.alu_result; // Forward from EX/MEM
+        default: rs1_val_fwd = id_ex.rs1_val; // Default case
+    endcase
+
+    // Forwarding logic for ALU B input
+    case (forward1)
+        2'b00: rs2_val_fwd = id_ex_nxt.rs2_val; // No forwarding
+        2'b01: rs2_val_fwd = mem_wb.mem_data; // Forward from MEM/WB
+        2'b10: rs2_val_fwd = ex_mem.alu_result; // Forward from EX/MEM
+        default: rs2_val_fwd = id_ex.rs2_val;
+    endcase
+    
+end
 
 // ----------------------------------------
 // Branch Resolution (in ID stage)
@@ -204,7 +243,7 @@ ALUcontrol alu_control (
     .operation(ALUcontrol)
 );
 
-data_fwd_unit fwd_unit (
+ex_data_fwd_unit fwd_unit (
     .id_ex_rs1(id_ex.rs1),
     .id_ex_rs2(id_ex.rs2),
     .ex_mem_RegWrite(ex_mem.regwrite),
@@ -219,7 +258,7 @@ always_comb begin
     // Forwarding logic for ALU A input
     case (forwardA)
         2'b00: ALU_A = id_ex.rs1_val; // No forwarding
-        2'b01: ALU_A = reg_write_data; // Forward from MEM/WB
+        2'b01: ALU_A = mem_wb.mem_data; // Forward from MEM/WB
         2'b10: ALU_A = ex_mem.alu_result; // Forward from EX/MEM
         default: ALU_A = id_ex.rs1_val; // Default case
     endcase
@@ -227,7 +266,7 @@ always_comb begin
     // Forwarding logic for ALU B input
     case (forwardB)
         2'b00: B = id_ex.rs2_val; // No forwarding
-        2'b01: B = reg_write_data; // Forward from MEM/WB
+        2'b01: B = mem_wb.mem_data; // Forward from MEM/WB
         2'b10: B = ex_mem.alu_result; // Forward from EX/MEM
         default: B = id_ex.rs2_val; // Default case
     endcase

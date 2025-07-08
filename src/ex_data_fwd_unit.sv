@@ -1,6 +1,6 @@
 // DATA FORWARD UNIT
 
-module data_fwd_unit(
+module ex_data_fwd_unit(
     input  logic [4:0] id_ex_rs1,
     input  logic [4:0] id_ex_rs2,
     input  logic       ex_mem_RegWrite,
