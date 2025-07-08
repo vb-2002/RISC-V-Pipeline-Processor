@@ -1,6 +1,32 @@
 # RISC-V-Pipeline-Processor
 This project implements a 32-bit pipelined RISC processor in SystemVerilog, designed as part of a self-driven learning initiative. The processor supports a 5-stage pipeline — Fetch, Decode, Execute, Memory, and Write Back — with modules for hazard detection, data forwarding, and branch control.
 
+## 🧠 Branch Prediction & Control Hazard Resolution
+
+This design includes a **Branch Target Buffer (BTB)** with a **2-bit saturating FSM-based predictor** to mitigate control hazards in a 5-stage pipelined RISC-V processor. Branches are resolved in the **ID stage** to minimize the penalty from mispredictions.
+
+Each BTB entry is 60 bits wide and is structured as follows:
+
+| Field       | Bit Range | Description                                |
+|-------------|-----------|--------------------------------------------|
+| `valid`     | [59]      | Indicates whether the BTB entry is valid   |
+| `tag`       | [58:34]   | Tag derived from PC[31:7]                  |
+| `target`    | [33:2]    | Predicted branch target (word-aligned)     |
+| `fsm_state` | [1:0]     | 2-bit FSM predictor (STRONG_NT to STRONG_T)|
+
+---
+
+**Note:**  
+The BTB has 32 entries. Since RISC-V instructions are word-aligned, the lower two bits of the PC are always `00`. Therefore:
+- `PC[6:2]` is used as the BTB index (5 bits)
+- `PC[31:7]` is used as the tag (25 bits)
+
+The control hazard resolution flow is illustrated below:
+
+<p align="center">
+  <img src="btb_flow.png" width="700"/>
+</p>
+
 # RV32I Instruction Set Documentation
 Conforms to RISC-V Unprivileged ISA Spec v2.2.
 
