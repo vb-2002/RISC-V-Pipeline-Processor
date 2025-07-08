@@ -24,7 +24,7 @@ The BTB has 32 entries. Since RISC-V instructions are word-aligned, the lower tw
 The control hazard resolution flow is illustrated below:
 
 <p align="center">
-  <img src="btb_flow.png" width="1000"/>
+  <img src="btb_flow.png" width="1200"/>
 </p>
 
 # RV32I Instruction Set Documentation
