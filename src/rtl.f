@@ -8,5 +8,6 @@ src/instr_mem.v
 src/pipeline_reg.sv
 src/regfile.v
 src/top.sv
-src/data_fwd_unit.sv
+src/id_data_fwd_unit.sv
 src/hzd_detection_unit.sv
+src/ex_data_fwd_unit.sv
