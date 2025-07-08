@@ -6,7 +6,6 @@ Conforms to RISC-V Unprivileged ISA Spec v2.2.
 
 ## Supported Instructions
 
-Each instruction includes:
 - Arithmetic - add,sub,addi
 - Logical - and,or,xor,andi,ori,xori
 - Shift - sll,srl,sra,slli,srli,srai
