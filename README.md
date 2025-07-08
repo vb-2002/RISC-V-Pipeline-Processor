@@ -50,7 +50,7 @@ based on matching destination (`rd`) and source (`rs1/rs2`) registers.
 #### 2. ID Stage Forwarding (`id_data_fwd_unit`)
 For **branch instructions**, correct operand values are needed in the ID stage to resolve the branch decision. However, the register file might not yet contain updated data.
 
-To address this, the ID-stage forwarding unit checks whether the source registers (`rs1`, `rs2`) of the branch instruction match the destination registers of **EX/MEM** or **MEM/WB**, and appropriate data is forwarded to ensure **correct and early branch resolution
+To address this, the ID-stage forwarding unit checks whether the source registers (`rs1`, `rs2`) of the branch instruction match the destination registers of **EX/MEM** or **MEM/WB**, and appropriate data is forwarded to ensure **correct and early** branch resolution
 
 #### 3. Load-Use & Branch Hazard Detection (`hzd_detection_unit`)
 This unit inserts pipeline **stalls** when data cannot be forwarded safely:
@@ -67,7 +67,7 @@ This guarantees safe and deterministic pipeline behavior across dependent instru
 
 ---------
 # RV32I Instruction Set Documentation
-Conforms to RISC-V Unprivileged ISA Spec v2.2.
+This design conforms to RISC-V Unprivileged ISA Spec v2.2.
 
 ## Supported Instructions
 
