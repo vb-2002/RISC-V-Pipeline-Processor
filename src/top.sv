@@ -302,7 +302,7 @@ ex_mem_reg_t ex_mem, ex_mem_nxt;
 pipeline_reg #(.N($bits(ex_mem_reg_t))) ex_mem_pipe (
     .clk(clk),
     .rst(rst),
-    .write_en(1'b1), // Assume always write for now
+    .write_en(1'b1), 
     .flush(1'b0),   
     .in(ex_mem_nxt),
     .out(ex_mem)

@@ -1,6 +1,10 @@
 # RISC-V-Pipeline-Processor
 This project implements a 32-bit pipelined RISC processor in SystemVerilog, designed as part of a self-driven learning initiative. The processor supports a 5-stage pipeline — Fetch, Decode, Execute, Memory, and Write Back — with modules for hazard detection, data forwarding, and branch control.
 
+<p align="center">
+  <img src="pipeline_processor.png" width="1500"/>
+</p>
+
 ## 🧠 Branch Prediction & Control Hazard Resolution
 
 This design includes a **Branch Target Buffer (BTB)** with a **2-bit saturating FSM-based predictor** to mitigate control hazards in a 5-stage pipelined RISC-V processor. Branches are resolved in the **ID stage** to minimize the penalty from mispredictions.
@@ -14,7 +18,6 @@ Each BTB entry is 60 bits wide and is structured as follows:
 | `target`    | [33:2]    | Predicted branch target (word-aligned)     |
 | `fsm_state` | [1:0]     | 2-bit FSM predictor (STRONG_NT to STRONG_T)|
 
----
 
 **Note:**  
 The BTB has 32 entries. Since RISC-V instructions are word-aligned, the lower two bits of the PC are always `00`. Therefore:
@@ -27,6 +30,42 @@ The control hazard resolution flow is illustrated below:
   <img src="btb_flow.png" width="1500"/>
 </p>
 
+## ⚙️ Data Hazard Handling
+
+To maintain high pipeline throughput while ensuring correctness, this design implements **data hazard resolution** using:
+
+1. EX Stage Forwarding (`ex_data_fwd_unit`)
+2. ID Stage Forwarding (`id_data_fwd_unit`)
+3. Hazard Detection Unit (`hzd_detection_unit`)
+
+### 🔁 1. EX Stage Forwarding (`ex_data_fwd_unit`)
+This unit resolves *read-after-write (RAW)* hazards where the EX stage depends on data yet to be written back by later stages.
+
+It selects between:
+- The original register value from ID/EX,
+- The result from EX/MEM, or
+- The write-back value from MEM/WB,
+based on matching destination (`rd`) and source (`rs1/rs2`) registers.
+
+### 🔁 2. ID Stage Forwarding (`id_data_fwd_unit`)
+For **branch instructions**, correct operand values are needed in the ID stage to resolve the branch decision. However, the register file might not yet contain updated data.
+
+To address this, the ID-stage forwarding unit checks whether the source registers (`rs1`, `rs2`) of the branch instruction match the destination registers of **EX/MEM** or **MEM/WB**, and appropriate data is forwarded to ensure **correct and early branch resolution
+
+### ⛔ 3. Load-Use & Branch Hazard Detection (`hzd_detection_unit`)
+This unit inserts pipeline **stalls** when data cannot be forwarded safely:
+
+- **Load-Use Hazard:** If a load instruction is in ID/EX, and its `rd` is needed in the next instruction, stall the pipeline for 1 cycle.
+- **Branch-Use Hazard:** If a branch instruction uses operands that are yet ready to be forwarded (from ID/EX or EX/MEM), stall to avoid incorrect comparisons.
+
+When a hazard is detected:
+- `stall` signal is asserted,
+- `PCWrite` is de-asserted,
+- The IF/ID register is frozen and ID/EX is flushed in the next cycle. 
+
+This guarantees safe and deterministic pipeline behavior across dependent instructions.
+
+---------
 # RV32I Instruction Set Documentation
 Conforms to RISC-V Unprivileged ISA Spec v2.2.
 

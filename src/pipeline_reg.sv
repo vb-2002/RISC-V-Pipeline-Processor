@@ -20,10 +20,8 @@ module pipeline_reg #(
     always_ff @(posedge clk or posedge rst) begin
         if (rst)
             out <= '0;             // Async reset to 0
-        else if (flush)
-            out <= '0;             // Synchronous flush to 0
         else if (write_en)
-            out <= in;             // Normal update
+            out <= flush ? '0 : in;             // Normal update
     end
 
 endmodule
