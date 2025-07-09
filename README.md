@@ -63,7 +63,7 @@ When a hazard is detected:
 - `PCWrite` is de-asserted,
 - The IF/ID register is frozen and ID/EX is flushed in the next cycle. 
 
-This guarantees safe and deterministic pipeline behavior across dependent instructions.
+This guarantees safe and deterministic pipeline behavior across data dependent instructions.
 
 ---------
 # RV32I Instruction Set Documentation
