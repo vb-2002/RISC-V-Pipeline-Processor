@@ -1,5 +1,5 @@
 # RISC-V-Pipeline-Processor
-This project implements a 32-bit pipelined RISC processor in SystemVerilog, designed as part of a self-driven learning initiative. The processor supports a 5-stage pipeline — Fetch, Decode, Execute, Memory, and Write Back — with modules for hazard detection, data forwarding, and branch control.
+This project implements a 32-bit pipelined RISC-V RV32I ISA based processor in SystemVerilog, designed as part of a self-driven learning initiative. The processor supports a 5-stage pipeline - Fetch (IF), Decode (ID), Execute (EX), Memory (MEM), and Write Back (WB). Includes modules for hazard detection, data forwarding, and branch control.
 
 <p align="center">
   <img src="pipeline_processor.png" width="800"/>
@@ -63,7 +63,7 @@ When a hazard is detected:
 - `PCWrite` is de-asserted,
 - The IF/ID register is frozen and ID/EX is flushed in the next cycle. 
 
-This guarantees safe and deterministic pipeline behavior across dependent instructions.
+This guarantees safe and deterministic pipeline behavior across data dependent instructions.
 
 ---------
 # RV32I Instruction Set Documentation
