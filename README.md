@@ -5,7 +5,7 @@ This project implements a 32-bit pipelined RISC-V RV32I ISA based processor in S
   <img src="pipeline_processor.png" width="800"/>
 </p>
 
-## 🧠 Branch Prediction & Control Hazard Resolution
+## Branch Prediction & Control Hazard Resolution
 
 This design includes a **Branch Target Buffer (BTB)** with a **2-bit saturating FSM-based predictor** to mitigate control hazards in a 5-stage pipelined RISC-V processor. Branches are resolved in the **ID stage** to minimize the penalty from mispredictions.
 
