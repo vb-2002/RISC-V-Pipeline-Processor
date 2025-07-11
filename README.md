@@ -30,7 +30,7 @@ The control hazard resolution flow is illustrated below:
   <img src="btb_flow.png" width="1500"/>
 </p>
 
-## ⚙️ Data Hazard Handling
+## Data Hazard Handling
 
 To maintain high pipeline throughput while ensuring correctness, this design implements **data hazard resolution** using:
 
