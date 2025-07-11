@@ -10,7 +10,7 @@ module top_tb;
         .rst(rst)
     );
 
-    // Clock generator: 10ns period
+    // Clock generator
     initial clk = 0;
     always #5 clk = ~clk;
 
