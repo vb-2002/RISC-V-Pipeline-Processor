@@ -11,3 +11,4 @@ src/top.sv
 src/id_data_fwd_unit.sv
 src/hzd_detection_unit.sv
 src/ex_data_fwd_unit.sv
+src/top_tb.sv
