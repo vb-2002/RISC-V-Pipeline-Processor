@@ -29,8 +29,8 @@ module top_tb;
 
     // VCD waveform dump
     initial begin
-        $dumpfile("top.vcd");
-        $dumpvars(0, top_tb);
+        $fsdbDumpfile("top.fsdb");
+        $fsdbDumpvars(0, top_tb.uut);
     end
 
 endmodule
