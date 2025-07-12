@@ -29,7 +29,7 @@ module instr_mem (
         mem[11] = 32'h00a0a103;  // lw x2,10(x1) --> x2 = mem[x1+10] (changed offset to 10)
         mem[12] = 32'h00708133;  // add x2,x1,x7 --> x2 = x1 + x7 = 14 + 56 = 70
         mem[13] = 32'h00708533;  // add x10,x1,x7 --> x10 = x1 + x7 = 14 + 56 = 70 (same as x2)
-        mem[14] = 32'hfea100e3;  // beq x2,x10,-32 --> branch back 32 bytes (always taken since x2 == x10 = 70)
+        mem[14] = 32'hfca104e3;  // beq x2,x10,-56 --> branch back to mem[0] (always taken since x2 == x10 = 70)
         // Initialize remaining instructions to 0
         for (i = 15; i < 32; i = i + 1)
             mem[i] = 32'h00000000;
