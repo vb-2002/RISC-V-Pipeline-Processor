@@ -95,7 +95,6 @@ always_comb begin
             new_entry.fsm_state = next_state;
         end
     
-end
 
     always_ff @(posedge clk or posedge rst) begin
         if (rst) begin
