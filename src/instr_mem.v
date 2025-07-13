@@ -21,7 +21,7 @@ module instr_mem (
         mem[3]  = 32'h04000213;  // addi x4,x0,64 --> x4 = 0 + 64 = 64
         mem[4]  = 32'h00312223;  // sw x3,4(x2) --> store x3 at mem[x2+4]
         mem[5]  = 32'h0040e093;  // ori x1,x1,4 --> x1 = x1 | 4 = 14
-        mem[6]  = 32'h0010f333;  // and x6,x1,x1 --> x6 = x1 & x1 = 14 (Note: original comment unclear)
+        mem[6]  = 32'h0010f333;  // and x6,x1,x1 --> x6 = x1 & x1 = 14 
         mem[7]  = 32'h002241b3;  // xor x3,x4,x2 --> x3 = x4 ^ x2 = 84
         mem[8]  = 32'h00231393;  // slli x7,x6,2 --> x7 = x6 << 2 = 56
         mem[9]  = 32'h00325413;  // srli x8,x4,3 --> x8 = x4 >> 3 = 8
