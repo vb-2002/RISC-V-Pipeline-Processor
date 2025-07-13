@@ -184,6 +184,7 @@ module top_tb;
         $fsdbDumpfile("top.fsdb");
         $fsdbDumpvars(0, top_tb.uut);
         $fsdbDumpvars(0, top_tb);
+        $fsdbDumpMDA;
     end
 
 endmodule
