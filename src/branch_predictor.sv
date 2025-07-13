@@ -48,9 +48,9 @@ module branch_predictor (
     // -------------------------------------
     // Fetch Stage Lookup
     // -------------------------------------
+    btb_entry_t entry;
     always_comb begin
-        btb_entry_t entry = btb[fetch_index];
-
+        entry = btb[fetch_index];
         if (entry.valid && (entry.tag == fetch_tag)) begin
             predicted_target  = entry.target;
             branch_prediction = (entry.fsm_state[1] == 1'b1);  // Taken if WEAK_T or STRONG_T

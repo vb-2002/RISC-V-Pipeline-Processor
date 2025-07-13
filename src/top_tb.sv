@@ -101,6 +101,16 @@ module top_tb;
     logic        tb_mem_wb_nxt_MtoR;
     logic        tb_mem_wb_nxt_regwrite;
 
+    // Branch Predictor
+    logic [31:0] tb_btb_entry_target;
+    logic [1:0]  tb_btb_entry_fsm_state;    
+    logic        tb_btb_entry_valid;
+    logic [24:0] tb_btb_entry_tag;
+
+    logic [31:0] tb_btb_new_entry_target;
+    logic [1:0]  tb_btb_new_entry_fsm_state;
+    logic        tb_btb_new_entry_valid;
+    logic [24:0] tb_btb_new_entry_tag;
     // -----------------------------
     // Assigns from DUT structs
     // -----------------------------
@@ -176,7 +186,16 @@ module top_tb;
     assign tb_mem_wb_nxt_rd        = uut.mem_wb_nxt.rd;
     assign tb_mem_wb_nxt_MtoR      = uut.mem_wb_nxt.MtoR;
     assign tb_mem_wb_nxt_regwrite  = uut.mem_wb_nxt.regwrite;
+    // Branch Predictor
+    assign tb_btb_entry_target      = uut.bp.entry.target;
+    assign tb_btb_entry_fsm_state   = uut.bp.entry.fsm_state;
+    assign tb_btb_entry_valid       = uut.bp.entry.valid;
+    assign tb_btb_entry_tag         = uut.bp.entry.tag;
 
+    assign tb_btb_new_entry_target      = uut.bp.new_entry.target;
+    assign tb_btb_new_entry_fsm_state   = uut.bp.new_entry.fsm_state;
+    assign tb_btb_new_entry_valid       = uut.bp.new_entry.valid;
+    assign tb_btb_new_entry_tag         = uut.bp.new_entry.tag;
     // -----------------------------
     // FSDB Dump
     // -----------------------------
