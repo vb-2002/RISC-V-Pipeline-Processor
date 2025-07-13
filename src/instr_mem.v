@@ -26,7 +26,7 @@ module instr_mem (
         mem[8]  = 32'h00231393;  // slli x7,x6,2 --> x7 = x6 << 2 = 56
         mem[9]  = 32'h00325413;  // srli x8,x4,3 --> x8 = x4 >> 3 = 8
         mem[10] = 32'h4010d493;  // srai x9,x1,1 --> x9 = x1 >>> 1 = 7
-        mem[11] = 32'h00a0a103;  // lw x2,10(x1) --> x2 = mem[x1+10] 
+        mem[11] = 32'h00a0a103;  // lw x2,10(x1) --> x2 = mem[x1+10]    
         mem[12] = 32'h00708133;  // add x2,x1,x7 --> x2 = x1 + x7 = 14 + 56 = 70
         mem[13] = 32'h00708533;  // add x10,x1,x7 --> x10 = x1 + x7 = 14 + 56 = 70 (same as x2)
         mem[14] = 32'hfca104e3;  // beq x2,x10,-56 --> branch back to mem[0] (always taken since x2 == x10 = 70)
