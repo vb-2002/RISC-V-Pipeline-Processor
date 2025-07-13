@@ -196,14 +196,22 @@ module top_tb;
     assign tb_btb_new_entry_fsm_state   = uut.bp.new_entry.fsm_state;
     assign tb_btb_new_entry_valid       = uut.bp.new_entry.valid;
     assign tb_btb_new_entry_tag         = uut.bp.new_entry.tag;
+
+    
     // -----------------------------
-    // FSDB Dump
+    // FSDB  and VCD Dump
     // -----------------------------
     initial begin
         $fsdbDumpfile("top.fsdb");
         $fsdbDumpvars(0, top_tb.uut);
         $fsdbDumpvars(0, top_tb);
         $fsdbDumpMDA;
+
+        // VCD dump
+        $dumpfile("top.vcd");
+        $dumpvars(0, top_tb.uut);
+        $dumpvars(0, top_tb);
     end
+
 
 endmodule
