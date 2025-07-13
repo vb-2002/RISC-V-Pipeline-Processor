@@ -212,10 +212,17 @@ end
 // Branch Resolution (in ID stage)
 // ----------------------------------------
 // Branch taken condition (simple BEQ and BNE)
-assign branch_taken_actual = id_inst_branch && (
+logic beq;
+logic bne;
+assign beq = (id_ex_nxt.funct3 == 3'b000) && (rs1_val_fwd == rs2_val_fwd); // BEQ: if rs1 == rs2
+assign bne = (id_ex_nxt.funct3 == 3'b001) && (rs1_val_fwd != rs2_val_fwd); // BNE: if rs1 != rs2
+
+/*assign branch_taken_actual = id_inst_branch && (
     (id_ex_nxt.funct3 == 3'b000 && (rs1_val_fwd == rs2_val_fwd)) ||  // BEQ
     (id_ex_nxt.funct3 == 3'b001 && (rs1_val_fwd != rs2_val_fwd))     // BNE
 );
+*/
+assign branch_taken_actual = id_inst_branch && (beq || bne);
 
 // Calculate the target address for branches
 // This is done in ID stage to allow for branch prediction
