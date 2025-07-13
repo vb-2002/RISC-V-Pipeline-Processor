@@ -87,8 +87,9 @@ module branch_predictor (
     // -------------------------------------
     // BTB Update Logic
     // -------------------------------------
-always_comb begin 
-            btb_entry_t new_entry;
+    btb_entry_t new_entry;
+
+    always_comb begin 
             new_entry.valid     = 1'b1;
             new_entry.tag       = update_tag;
             new_entry.target    = resolved_target;
