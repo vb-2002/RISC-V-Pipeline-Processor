@@ -213,8 +213,8 @@ end
 // ----------------------------------------
 // Branch taken condition (simple BEQ and BNE)
 assign branch_taken_actual = id_inst_branch && (
-    (id_ex_nxt.funct3 == 3'b000 && (rs1_val_fwd == rs1_val_fwd)) ||  // BEQ
-    (id_ex_nxt.funct3 == 3'b001 && (rs1_val_fwd != rs1_val_fwd))     // BNE
+    (id_ex_nxt.funct3 == 3'b000 && (rs1_val_fwd == rs2_val_fwd)) ||  // BEQ
+    (id_ex_nxt.funct3 == 3'b001 && (rs1_val_fwd != rs2_val_fwd))     // BNE
 );
 
 // Calculate the target address for branches
