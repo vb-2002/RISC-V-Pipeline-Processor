@@ -21,7 +21,7 @@ module data_mem (
 
     initial begin 
         for(i = 0;i < 32;i = i+1)
-	        dmem[i] = i; 
+	        dmem[i] = 0;; 
     end
     // Synchronous write
     always @(posedge clk) begin
