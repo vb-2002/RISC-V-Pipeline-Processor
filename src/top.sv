@@ -265,7 +265,7 @@ always_comb begin
     // Forwarding logic for ALU A input
     case (forwardA)
         2'b00: ALU_A = id_ex.rs1_val; // No forwarding
-        2'b01: ALU_A = mem_wb.mem_data; // Forward from MEM/WB
+        2'b01: ALU_A = reg_write_data; // Forward from MEM/WB
         2'b10: ALU_A = ex_mem.alu_result; // Forward from EX/MEM
         default: ALU_A = id_ex.rs1_val; // Default case
     endcase
@@ -273,7 +273,7 @@ always_comb begin
     // Forwarding logic for ALU B input
     case (forwardB)
         2'b00: B = id_ex.rs2_val; // No forwarding
-        2'b01: B = mem_wb.mem_data; // Forward from MEM/WB
+        2'b01: B = reg_write_data; // Forward from MEM/WB
         2'b10: B = ex_mem.alu_result; // Forward from EX/MEM
         default: B = id_ex.rs2_val; // Default case
     endcase
