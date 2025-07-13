@@ -87,17 +87,22 @@ module branch_predictor (
     // -------------------------------------
     // BTB Update Logic
     // -------------------------------------
+always_comb begin 
+            btb_entry_t new_entry;
+            new_entry.valid     = 1'b1;
+            new_entry.tag       = update_tag;
+            new_entry.target    = resolved_target;
+            new_entry.fsm_state = next_state;
+        end
+    
+end
+
     always_ff @(posedge clk or posedge rst) begin
         if (rst) begin
             for (int i = 0; i < 32; i++) begin
                 btb[i] <= '0;
             end
         end else if (update_en) begin
-            btb_entry_t new_entry;
-            new_entry.valid     = 1'b1;
-            new_entry.tag       = update_tag;
-            new_entry.target    = resolved_target;
-            new_entry.fsm_state = next_state;
             btb[update_index]   <= new_entry;
         end
     end
