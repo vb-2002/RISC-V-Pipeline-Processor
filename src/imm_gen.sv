@@ -4,7 +4,7 @@ module imm_gen(
     input  logic [31:0] instr,
     input  logic [6:0]  op
 );
-
+    
     always_comb begin
         case(op)
             7'b1100011: // SB types -> beq, bne
@@ -17,7 +17,7 @@ module imm_gen(
             7'b0100011: // sw
                 out = {{20{instr[31]}}, instr[31:25], instr[11:7]};
 
-            7'b0010011: // addi, slli, srai, ori, andi...
+            7'b0010011: // addi, slli, srai, ori, andi..
                 out = {{20{instr[31]}}, instr[31:20]};
 
             default: // default to I-type immediate
