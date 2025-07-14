@@ -7,7 +7,6 @@ module ALUcontrol (
 
     always_comb begin
         operation = 4'd15; // Default: invalid
-
         // Load/Store instructions (LW, SW, etc.) — Use ADD
         if (ALUop == 2'b00) begin
             operation = 4'd2; // ADD
