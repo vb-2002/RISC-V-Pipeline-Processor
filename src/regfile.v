@@ -15,7 +15,6 @@ module regfile(
     output reg [31:0] readdataA,
     output reg [31:0] readdataB
 );
-
     reg [31:0] regs[31:0];
     integer i;
 
