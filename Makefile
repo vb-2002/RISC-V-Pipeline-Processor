@@ -3,7 +3,6 @@
 #make view    # Open waveform in GTKWave
 #make clean   # Clean all build files
 
-
 # Tools
 VERILATOR = verilator
 IVERILOG  = iverilog
