@@ -48,9 +48,9 @@ module branch_predictor (
     // -------------------------------------
     // Fetch Stage Lookup
     // -------------------------------------
+    btb_entry_t entry;
     always_comb begin
-        btb_entry_t entry = btb[fetch_index];
-
+        entry = btb[fetch_index];
         if (entry.valid && (entry.tag == fetch_tag)) begin
             predicted_target  = entry.target;
             branch_prediction = (entry.fsm_state[1] == 1'b1);  // Taken if WEAK_T or STRONG_T
@@ -87,17 +87,22 @@ module branch_predictor (
     // -------------------------------------
     // BTB Update Logic
     // -------------------------------------
+    btb_entry_t new_entry;
+
+    always_comb begin 
+            new_entry.valid     = 1'b1;
+            new_entry.tag       = update_tag;
+            new_entry.target    = resolved_target;
+            new_entry.fsm_state = next_state;
+        end
+    
+
     always_ff @(posedge clk or posedge rst) begin
         if (rst) begin
             for (int i = 0; i < 32; i++) begin
                 btb[i] <= '0;
             end
         end else if (update_en) begin
-            btb_entry_t new_entry;
-            new_entry.valid     = 1'b1;
-            new_entry.tag       = update_tag;
-            new_entry.target    = resolved_target;
-            new_entry.fsm_state = next_state;
             btb[update_index]   <= new_entry;
         end
     end

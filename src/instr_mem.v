@@ -21,12 +21,12 @@ module instr_mem (
         mem[3]  = 32'h04000213;  // addi x4,x0,64 --> x4 = 0 + 64 = 64
         mem[4]  = 32'h00312223;  // sw x3,4(x2) --> store x3 at mem[x2+4]
         mem[5]  = 32'h0040e093;  // ori x1,x1,4 --> x1 = x1 | 4 = 14
-        mem[6]  = 32'h0010f333;  // and x6,x1,x1 --> x6 = x1 & x1 = 14 (Note: original comment unclear)
+        mem[6]  = 32'h0010f333;  // and x6,x1,x1 --> x6 = x1 & x1 = 14 
         mem[7]  = 32'h002241b3;  // xor x3,x4,x2 --> x3 = x4 ^ x2 = 84
         mem[8]  = 32'h00231393;  // slli x7,x6,2 --> x7 = x6 << 2 = 56
         mem[9]  = 32'h00325413;  // srli x8,x4,3 --> x8 = x4 >> 3 = 8
         mem[10] = 32'h4010d493;  // srai x9,x1,1 --> x9 = x1 >>> 1 = 7
-        mem[11] = 32'h00a0a103;  // lw x2,10(x1) --> x2 = mem[x1+10] (changed offset to 10)
+        mem[11] = 32'h00a0a103;  // lw x2,10(x1) --> x2 = mem[x1+10]    
         mem[12] = 32'h00708133;  // add x2,x1,x7 --> x2 = x1 + x7 = 14 + 56 = 70
         mem[13] = 32'h00708533;  // add x10,x1,x7 --> x10 = x1 + x7 = 14 + 56 = 70 (same as x2)
         mem[14] = 32'hfca104e3;  // beq x2,x10,-56 --> branch back to mem[0] (always taken since x2 == x10 = 70)

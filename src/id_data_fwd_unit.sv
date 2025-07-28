@@ -14,7 +14,6 @@ module id_data_fwd_unit (
     output logic [1:0] forward1,         // Forward control for operand1
     output logic [1:0] forward2          // Forward control for operand2
 );
-
     // Encoding:
     // 2'b00: use register file
     // 2'b10: forward from EX/MEM

@@ -18,7 +18,6 @@ module ALU (
             4'b0111: result = $signed(A) >>> B[4:0]; // Arithmetic shift right (signed)
             default: result = 32'd0;                 // Default case
         endcase
-
         zeroflag = (result == 32'd0);
     end
 

@@ -193,7 +193,7 @@ always_comb begin
     // Forwarding logic for ALU A input
     case (forward1)
         2'b00: rs1_val_fwd = id_ex_nxt.rs1_val; // No forwarding
-        2'b01: rs1_val_fwd = mem_wb.mem_data; // Forward from MEM/WB
+        2'b01: rs1_val_fwd = reg_write_data; // Forward from MEM/WB
         2'b10: rs1_val_fwd = ex_mem.alu_result; // Forward from EX/MEM
         default: rs1_val_fwd = id_ex.rs1_val; // Default case
     endcase
@@ -201,7 +201,7 @@ always_comb begin
     // Forwarding logic for ALU B input
     case (forward1)
         2'b00: rs2_val_fwd = id_ex_nxt.rs2_val; // No forwarding
-        2'b01: rs2_val_fwd = mem_wb.mem_data; // Forward from MEM/WB
+        2'b01: rs2_val_fwd = reg_write_data; // Forward from MEM/WB
         2'b10: rs2_val_fwd = ex_mem.alu_result; // Forward from EX/MEM
         default: rs2_val_fwd = id_ex.rs2_val;
     endcase
@@ -212,10 +212,17 @@ end
 // Branch Resolution (in ID stage)
 // ----------------------------------------
 // Branch taken condition (simple BEQ and BNE)
-assign branch_taken_actual = id_inst_branch && (
-    (id_ex_nxt.funct3 == 3'b000 && (rs1_val_fwd == rs1_val_fwd)) ||  // BEQ
-    (id_ex_nxt.funct3 == 3'b001 && (rs1_val_fwd != rs1_val_fwd))     // BNE
+logic beq;
+logic bne;
+assign beq = (id_ex_nxt.funct3 == 3'b000) && (rs1_val_fwd == rs2_val_fwd); // BEQ: if rs1 == rs2
+assign bne = (id_ex_nxt.funct3 == 3'b001) && (rs1_val_fwd != rs2_val_fwd); // BNE: if rs1 != rs2
+
+/*assign branch_taken_actual = id_inst_branch && (
+    (id_ex_nxt.funct3 == 3'b000 && (rs1_val_fwd == rs2_val_fwd)) ||  // BEQ
+    (id_ex_nxt.funct3 == 3'b001 && (rs1_val_fwd != rs2_val_fwd))     // BNE
 );
+*/
+assign branch_taken_actual = id_inst_branch && (beq || bne);
 
 // Calculate the target address for branches
 // This is done in ID stage to allow for branch prediction
@@ -258,7 +265,7 @@ always_comb begin
     // Forwarding logic for ALU A input
     case (forwardA)
         2'b00: ALU_A = id_ex.rs1_val; // No forwarding
-        2'b01: ALU_A = mem_wb.mem_data; // Forward from MEM/WB
+        2'b01: ALU_A = reg_write_data; // Forward from MEM/WB
         2'b10: ALU_A = ex_mem.alu_result; // Forward from EX/MEM
         default: ALU_A = id_ex.rs1_val; // Default case
     endcase
@@ -266,7 +273,7 @@ always_comb begin
     // Forwarding logic for ALU B input
     case (forwardB)
         2'b00: B = id_ex.rs2_val; // No forwarding
-        2'b01: B = mem_wb.mem_data; // Forward from MEM/WB
+        2'b01: B = reg_write_data; // Forward from MEM/WB
         2'b10: B = ex_mem.alu_result; // Forward from EX/MEM
         default: B = id_ex.rs2_val; // Default case
     endcase

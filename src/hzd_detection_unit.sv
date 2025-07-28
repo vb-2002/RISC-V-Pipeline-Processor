@@ -37,7 +37,6 @@ module hzd_detection_unit(
             PCWrite = 1'b0;
         end
 
-        // 3) Also catch a load‑use one cycle later (EX/MEM stage)
         else if (branch && ex_mem_MemRead &&
                 ((ex_mem_rd == if_id_rs1) || (ex_mem_rd == if_id_rs2))) begin
             stall   = 1'b1;

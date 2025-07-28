@@ -11,7 +11,7 @@ module controlunit(
 );
 
     always_comb begin
-        // Default values (NOP or unknown instruction)
+        // Default values 
         ALUop    = 2'b00;
         ALUsrc   = 1'b0;
         MtoR     = 1'b0;
@@ -36,7 +36,7 @@ module controlunit(
             begin
                 ALUop    = 2'b01;
                 ALUsrc   = 1'b0;
-                MtoR     = 1'b0; // Not used, set to 0
+                MtoR     = 1'b0; 
                 regwrite = 1'b0;
                 memread  = 1'b0;
                 memwrite = 1'b0;
@@ -58,7 +58,7 @@ module controlunit(
             begin
                 ALUop    = 2'b00; 
                 ALUsrc   = 1'b1;
-                MtoR     = 1'b0; // Not used, set to 0
+                MtoR     = 1'b0; 
                 regwrite = 1'b0;
                 memread  = 1'b0;
                 memwrite = 1'b1;
@@ -75,9 +75,6 @@ module controlunit(
                 memwrite = 1'b0;
                 branch   = 1'b0;
             end
-
-            default: begin
-                // Already set to safe default values
             end
         endcase
     end
